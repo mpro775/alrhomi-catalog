@@ -45,7 +45,7 @@ docker-compose --version
 ```bash
 # على VPS
 cd /opt
-sudo git clone <your-repository-url> alrhomi-catalog
+sudo git clone https://github.com/mpro775/alrhomi-catalog.git alrhomi-catalog
 cd alrhomi-catalog/backend
 ```
 

@@ -1,0 +1,17 @@
+# https://www.robotstxt.org/robotstxt.html
+# كتالوج الرحومي - Alrhomi Catalog
+
+User-agent: *
+Allow: /
+Allow: /catalog
+Allow: /product/*
+Disallow: /admin/*
+Disallow: /login
+Disallow: /api/*
+Disallow: /private/*
+
+# Crawl-delay for better server performance
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: %PUBLIC_URL%/sitemap.xml

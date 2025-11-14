@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- الصفحة الرئيسية -->
+  <url>
+    <loc>https://yourdomain.com/</loc>
+    <lastmod>2025-11-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- صفحة الكتالوج -->
+  <url>
+    <loc>https://yourdomain.com/catalog</loc>
+    <lastmod>2025-11-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- 
+    ملاحظة: يمكن إضافة المزيد من الروابط ديناميكياً 
+    أو استخدام sitemap generator لإنشاء خريطة الموقع تلقائياً
+    بناءً على المنتجات والفئات المتاحة
+  -->
+
+</urlset>
+

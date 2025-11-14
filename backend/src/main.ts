@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { Request, Response, NextFunction } from 'express';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -10,11 +11,40 @@ async function bootstrap() {
 
   // Enable CORS with better configuration
   app.enableCors({
-    origin: true, // أو '*' للسماح لجميع المصادر
+    origin: true, // السماح لجميع المصادر
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+      'Origin',
+      'Access-Control-Request-Method',
+      'Access-Control-Request-Headers',
+    ],
     exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    maxAge: 86400, // 24 hours
+  });
+
+  // إضافة middleware لتسجيل جميع الطلبات الواردة (حتى قبل authentication)
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const start = Date.now();
+    const method = req.method;
+    const url = req.url;
+    const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+    const hasAuth = req.headers.authorization ? 'with-auth' : 'no-auth';
+
+    console.log(`[${new Date().toISOString()}] ${method} ${url} from ${ip} ${hasAuth} - Incoming`);
+
+    res.on('finish', () => {
+      const duration = Date.now() - start;
+      console.log(
+        `[${new Date().toISOString()}] ${method} ${url} ${res.statusCode} - ${duration}ms - Completed`,
+      );
+    });
+
+    next();
   });
 
   // Global validation pipe

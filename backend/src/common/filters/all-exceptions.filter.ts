@@ -15,6 +15,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const errorPayload =
       typeof message === 'string' ? { error: message } : (message as Record<string, unknown>);
 
+    // تسجيل الخطأ
+    console.error(
+      `[${new Date().toISOString()}] ERROR ${request.method} ${request.url} ${status}`,
+      exception instanceof Error ? exception.message : 'Unknown error',
+    );
+    if (exception instanceof Error && exception.stack) {
+      console.error('Stack trace:', exception.stack);
+    }
+
     response.status(status).json({
       ...errorPayload,
       statusCode: status,

@@ -2,9 +2,16 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
+
+// محاولة تحميل dotenv إذا كان متاحاً (للاستخدام المحلي)
+try {
+  require('dotenv').config();
+} catch (e) {
+  // dotenv غير متاح، المتغيرات ستأتي من environment
+}
 
 // اقرأ الإعدادات من متغيرات البيئة
+// في Docker، المتغيرات تُمرر تلقائياً من docker-compose.yml
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://mongodb:27017/product-catalog';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const SALT_ROUNDS = 10;

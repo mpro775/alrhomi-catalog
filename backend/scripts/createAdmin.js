@@ -2,17 +2,85 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const path = require('path');
+const fs = require('fs');
 
-// محاولة تحميل dotenv إذا كان متاحاً (للاستخدام المحلي)
+// تحميل dotenv من مجلد backend (اختياري)
+let dotenvLoaded = false;
 try {
-  require('dotenv').config();
+  const dotenv = require('dotenv');
+  const envPath = path.join(__dirname, '..', '.env');
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+    dotenvLoaded = true;
+  } else {
+    // محاولة تحميل من المجلد الحالي
+    dotenv.config();
+    dotenvLoaded = true;
+  }
 } catch (e) {
-  // dotenv غير متاح، المتغيرات ستأتي من environment
+  // dotenv غير متاح، سنقرأ .env يدوياً أو نعتمد على environment variables
+  dotenvLoaded = false;
+}
+
+// إذا لم يكن dotenv متاحاً، قراءة .env يدوياً
+if (!dotenvLoaded) {
+  const envPath = path.join(__dirname, '..', '.env');
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf8');
+    const lines = envContent.split('\n');
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      // تجاهل التعليقات والأسطر الفارغة
+      if (trimmedLine && !trimmedLine.startsWith('#')) {
+        const equalIndex = trimmedLine.indexOf('=');
+        if (equalIndex > 0) {
+          const key = trimmedLine.substring(0, equalIndex).trim();
+          const value = trimmedLine.substring(equalIndex + 1).trim();
+          // إزالة علامات الاقتباس إذا كانت موجودة
+          const cleanValue = value.replace(/^["']|["']$/g, '');
+          if (!process.env[key]) {
+            process.env[key] = cleanValue;
+          }
+        }
+      }
+    }
+  }
 }
 
 // اقرأ الإعدادات من متغيرات البيئة
 // في Docker، المتغيرات تُمرر تلقائياً من docker-compose.yml
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://mongodb:27017/product-catalog';
+const MONGO_ROOT_USERNAME = process.env.MONGO_ROOT_USERNAME;
+const MONGO_ROOT_PASSWORD = process.env.MONGO_ROOT_PASSWORD;
+const MONGODB_PORT = process.env.MONGODB_PORT || '27017';
+const MONGODB_HOST = process.env.MONGODB_HOST || '89.116.228.32';
+const MONGODB_DATABASE = process.env.MONGODB_DATABASE || 'product-catalog';
+
+// بناء URI الاتصال مع المصادقة إذا كانت متوفرة
+let MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  if (MONGO_ROOT_USERNAME && MONGO_ROOT_PASSWORD) {
+    // بناء URI مع المصادقة
+    MONGODB_URI = `mongodb://${encodeURIComponent(MONGO_ROOT_USERNAME)}:${encodeURIComponent(MONGO_ROOT_PASSWORD)}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}?authSource=admin`;
+  } else {
+    // بدون مصادقة (للتطوير المحلي فقط)
+    MONGODB_URI = `mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}`;
+    console.warn('⚠️  تحذير: لا توجد بيانات مصادقة MongoDB. تأكد من أن MongoDB لا يتطلب مصادقة.');
+  }
+} else {
+  // إذا كان MONGODB_URI موجوداً لكن لا يحتوي على مصادقة، نحاول إضافتها
+  if (MONGO_ROOT_USERNAME && MONGO_ROOT_PASSWORD && !MONGODB_URI.includes('@')) {
+    // استخراج الأجزاء من URI الموجود
+    // نمط: mongodb://host:port/database أو mongodb://host/database
+    const uriMatch = MONGODB_URI.match(/^mongodb:\/\/([^\/]+)(\/.+)?$/);
+    if (uriMatch) {
+      const [, hostPart, dbPart = '/product-catalog'] = uriMatch;
+      const queryString = dbPart.includes('?') ? '&authSource=admin' : '?authSource=admin';
+      MONGODB_URI = `mongodb://${encodeURIComponent(MONGO_ROOT_USERNAME)}:${encodeURIComponent(MONGO_ROOT_PASSWORD)}@${hostPart}${dbPart}${queryString}`;
+    }
+  }
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const SALT_ROUNDS = 10;
 
@@ -37,6 +105,21 @@ async function main() {
   try {
     // 1. اتصال بقاعدة البيانات
     console.log('🔄 جاري الاتصال بقاعدة البيانات...');
+    
+    // عرض معلومات التشخيص (في وضع التطوير)
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`🔍 معلومات التشخيص:`);
+      console.log(`   MONGO_ROOT_USERNAME: ${MONGO_ROOT_USERNAME ? '✓ موجود' : '✗ غير موجود'}`);
+      console.log(`   MONGO_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD ? '✓ موجود' : '✗ غير موجود'}`);
+      console.log(`   MONGODB_HOST: ${MONGODB_HOST}`);
+      console.log(`   MONGODB_PORT: ${MONGODB_PORT}`);
+      console.log(`   MONGODB_DATABASE: ${MONGODB_DATABASE}`);
+    }
+    
+    // عرض معلومات الاتصال (بدون كلمة المرور)
+    const uriForDisplay = MONGODB_URI.replace(/:([^:@]+)@/, ':****@');
+    console.log(`📡 URI: ${uriForDisplay}`);
+    
     await mongoose.connect(MONGODB_URI);
     console.log('✓ تم الاتصال بقاعدة البيانات بنجاح');
 

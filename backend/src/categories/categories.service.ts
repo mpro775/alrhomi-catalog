@@ -7,6 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CategoryDocument } from '../database/schemas/category.schema';
+import { ProductDocument } from '../database/schemas/product.schema';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
@@ -15,48 +16,56 @@ export class CategoriesService {
   constructor(
     @InjectModel('Category')
     private categoryModel: Model<CategoryDocument>,
+    @InjectModel('Product')
+    private productModel: Model<ProductDocument>,
   ) {}
 
   async findAll() {
-    const categories = await this.categoryModel
-      .find()
-      .populate('parent', '_id name')
-      .sort({ name: 1 })
-      .lean();
+    try {
+      const categories = await this.categoryModel
+        .find()
+        .populate('parent', '_id name')
+        .sort({ name: 1 })
+        .lean();
 
-    // Count products for each category
-    const categoryIds = categories.map((cat) => cat._id);
+      if (!categories || categories.length === 0) {
+        return { items: [] };
+      }
 
-    // Get product model from mongoose
-    const ProductModel = this.categoryModel.db.model('Product');
+      // Count products for each category
+      const categoryIds = categories.map((cat) => cat._id);
 
-    // Count products per category
-    const productCounts = await ProductModel.aggregate([
-      { $match: { category: { $in: categoryIds } } },
-      {
-        $group: {
-          _id: '$category',
-          count: { $sum: 1 },
+      // استخدام productModel مباشرة بدلاً من db.model()
+      const productCounts = await this.productModel.aggregate([
+        { $match: { category: { $in: categoryIds } } },
+        {
+          $group: {
+            _id: '$category',
+            count: { $sum: 1 },
+          },
         },
-      },
-    ]);
+      ]);
 
-    // Create a map for quick lookup
-    const countMap = productCounts.reduce(
-      (acc, item) => {
-        acc[item._id.toString()] = item.count;
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
+      // Create a map for quick lookup
+      const countMap = productCounts.reduce(
+        (acc, item) => {
+          acc[item._id.toString()] = item.count;
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
 
-    // Add count to each category
-    const categoriesWithCount = categories.map((cat) => ({
-      ...cat,
-      itemsCount: countMap[cat._id.toString()] || 0,
-    }));
+      // Add count to each category
+      const categoriesWithCount = categories.map((cat) => ({
+        ...cat,
+        itemsCount: countMap[cat._id.toString()] || 0,
+      }));
 
-    return { items: categoriesWithCount };
+      return { items: categoriesWithCount };
+    } catch (error) {
+      console.error('Error in findAll categories:', error);
+      throw error;
+    }
   }
 
   async create(createCategoryDto: CreateCategoryDto) {

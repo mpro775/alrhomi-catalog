@@ -62,8 +62,8 @@ async function bootstrap() {
     },
   });
 
-  const port = process.env.PORT || 5000;
-  await app.listen(port);
+  const port = parseInt(process.env.PORT || '5000', 10);
+  await app.listen(port, '0.0.0.0');
   console.log(`🚀 Server running on port ${port}`);
   console.log(`📚 Swagger documentation available at http://localhost:${port}/api-docs`);
 }

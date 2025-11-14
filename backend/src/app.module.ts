@@ -9,6 +9,7 @@ import { AdminModule } from './admin/admin.module';
 import { StorageModule } from './storage/storage.module';
 import { QueueModule } from './queue/queue.module';
 import { JobStatusModule } from './job-status/job-status.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { JobStatusModule } from './job-status/job-status.module';
     StorageModule,
     QueueModule,
     JobStatusModule,
+    HealthModule,
   ],
 })
 export class AppModule {}

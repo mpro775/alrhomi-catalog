@@ -3,22 +3,16 @@ import {
   Container,
   Typography,
   Grid,
-  Card,
-  CardContent,
   Stack,
   Button,
   alpha,
-  Divider,
-  IconButton,
+  Card,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useMediaQuery } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
-  PhoneOutlined,
-  EmailOutlined,
-  LocationOnOutlined,
   ArrowForwardOutlined,
   WhatsApp,
   VerifiedOutlined,
@@ -27,18 +21,13 @@ import {
 } from "@mui/icons-material";
 import { fetchCategories } from "../api/admin";
 import CategoryShowcase from "../components/CategoryShowcase";
+import AboutContactSection from "../components/AboutContactSection";
 import SEO from "../components/SEO";
 import {
   getOrganizationSchema,
   getWebSiteSchema,
   injectMultipleSchemas,
 } from "../utils/structuredData";
-
-const contactInfo = {
-  address: "جدة – حي الهنداوية، شارع شجرة الزيتون – مركز بن شيهون",
-  phone: "012 647 7825",
-  email: "almarhomi@almrhomi1955.com",
-};
 
 export default function HomePage() {
   const theme = useTheme();
@@ -354,224 +343,7 @@ export default function HomePage() {
         />
       </Container>
 
-      <Box
-        sx={{
-          bgcolor: alpha(theme.palette.primary.main, 0.02),
-          py: { xs: 6, md: 10 },
-        }}
-      >
-        <Container maxWidth="lg">
-          <Grid container spacing={6} alignItems="center">
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Box
-                sx={{
-                  p: { xs: 4, md: 6 },
-                  borderRadius: 4,
-                  bgcolor: "background.paper",
-                  boxShadow: `0 8px 40px ${alpha(
-                    theme.palette.primary.main,
-                    0.08
-                  )}`,
-                  border: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-                }}
-              >
-                <Typography
-                  variant="h4"
-                  sx={{
-                    mb: 3,
-                    color: "primary.main",
-                  }}
-                >
-                  من نحن
-                </Typography>
-                <Typography
-                  color="text.secondary"
-                  sx={{
-                    mb: 2.5,
-                    lineHeight: 1.9,
-                    fontSize: "1.05rem",
-                  }}
-                >
-                  شركة علي سعيد المرحومي الغامدي وأبنائه المحدودة
-                </Typography>
-                <Typography
-                  color="text.secondary"
-                  sx={{
-                    lineHeight: 1.9,
-                    fontSize: "1.05rem",
-                  }}
-                >
-                  رواد في تجهيز المطاعم والمطابخ التجارية منذ أكثر من 65 عاماً.
-                  نفخر بتقديم حلول متكاملة من معدات وأدوات عالية الجودة مع خدمة
-                  عملاء استثنائية وضمان شامل لشركائنا في قطاع الضيافة.
-                </Typography>
-              </Box>
-            </Grid>
-
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Card
-                elevation={0}
-                sx={{
-                  borderRadius: 4,
-                  border: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-                  overflow: "hidden",
-                }}
-              >
-                <Box
-                  sx={{
-                    bgcolor: "primary.main",
-                    color: "white",
-                    p: 3,
-                  }}
-                >
-                  <Typography variant="h5" >
-                    تواصل معنا
-                  </Typography>
-                </Box>
-                <CardContent sx={{ p: 4 }}>
-                  <Stack spacing={3}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        gap: 3.5,
-                        p: 3.5,
-                        borderRadius: 3,
-                        bgcolor: alpha(theme.palette.primary.main, 0.05),
-                        transition: "all 0.3s ease",
-                        "&:hover": {
-                          bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        },
-                      }}
-                    >
-                      <IconButton
-                        size="small"
-                        sx={{
-                          bgcolor: "primary.main",
-                          color: "white",
-                          "&:hover": { bgcolor: "primary.dark" },
-                        }}
-                      >
-                        <LocationOnOutlined />
-                      </IconButton>
-                      <Box flex={1}>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{ display: "block", mb: 0.5 }}
-                        >
-                          العنوان
-                        </Typography>
-                        <Typography >
-                          {contactInfo.address}
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        gap: 3.5,
-                        p: 3.5,
-                        borderRadius: 3,
-                        bgcolor: alpha(theme.palette.primary.main, 0.05),
-                        transition: "all 0.3s ease",
-                        cursor: "pointer",
-                        "&:hover": {
-                          bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        },
-                      }}
-                      onClick={() => window.open(`tel:${contactInfo.phone}`, "_self")}
-                    >
-                      <IconButton
-                        size="small"
-                        sx={{
-                          bgcolor: "primary.main",
-                          color: "white",
-                          "&:hover": { bgcolor: "primary.dark" },
-                        }}
-                      >
-                        <PhoneOutlined />
-                      </IconButton>
-                      <Box flex={1}>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{ display: "block", mb: 0.5 }}
-                        >
-                          الهاتف
-                        </Typography>
-                        <Typography >
-                          {contactInfo.phone}
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        gap: 3.5,
-                        p: 3.5,
-                        borderRadius: 3,
-                        bgcolor: alpha(theme.palette.primary.main, 0.05),
-                        transition: "all 0.3s ease",
-                        cursor: "pointer",
-                        "&:hover": {
-                          bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        },
-                      }}
-                      onClick={() => window.open(`mailto:${contactInfo.email}`, "_self")}
-                    >
-                      <IconButton
-                        size="small"
-                        sx={{
-                          bgcolor: "primary.main",
-                          color: "white",
-                          "&:hover": { bgcolor: "primary.dark" },
-                        }}
-                      >
-                        <EmailOutlined />
-                      </IconButton>
-                      <Box flex={1}>
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{ display: "block", mb: 0.5 }}
-                        >
-                          البريد الإلكتروني
-                        </Typography>
-                        <Typography >
-                          {contactInfo.email}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Stack>
-
-                  <Divider sx={{ my: 3 }} />
-
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    size="large"
-                    startIcon={<WhatsApp />}
-                    onClick={() => window.open("https://wa.me/967775017485", "_blank")}
-                    sx={{
-                      py: 1.5,
-                      borderRadius: 3,
-                      fontSize: "1rem",
-                      background: `linear-gradient(135deg, #25D366 0%, #128C7E 100%)`,
-                      "&:hover": {
-                        background: `linear-gradient(135deg, #128C7E 0%, #075E54 100%)`,
-                      },
-                    }}
-                  >
-                    تواصل عبر واتساب
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
+      <AboutContactSection />
 
     
       </Box>

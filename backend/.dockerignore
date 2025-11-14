@@ -53,7 +53,7 @@ docker-compose*.yml
 .dockerignore
 
 # Scripts
-scripts
+# scripts
 *.ps1
 *.sh
 

@@ -41,6 +41,9 @@ RUN npm ci --only=production && \
 # Copy built application from builder stage
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
 
+# Copy scripts directory
+COPY --chown=nestjs:nodejs scripts ./scripts
+
 # Create directories for uploads and temp files
 RUN mkdir -p uploads tmp && \
     chown -R nestjs:nodejs uploads tmp

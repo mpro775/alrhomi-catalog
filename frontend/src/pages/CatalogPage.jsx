@@ -19,7 +19,7 @@ import debounce from "lodash.debounce";
 import SearchBar from "../components/SearchBar";
 import Filters from "../components/Filters";
 import ImageGrid from "../components/ImageGrid";
-import { searchImages } from "../api/images";
+import { searchProducts } from "../api/products";
 import { fetchCategories } from "../api/admin";
 import SEO from "../components/SEO";
 import { getItemListSchema, injectStructuredData } from "../utils/structuredData";
@@ -48,7 +48,7 @@ export default function CatalogPage() {
     debounceRef.current = debounce(async (localFilters, currentPage) => {
       setLoading(true);
       try {
-        const res = await searchImages({
+        const res = await searchProducts({
           q: localFilters.q,
           category: localFilters.category,
           page: currentPage,
@@ -56,7 +56,7 @@ export default function CatalogPage() {
         });
         setData(res.data);
       } catch (err) {
-        console.error("Fetch images failed", err);
+        console.error("Fetch products failed", err);
       } finally {
         setLoading(false);
       }
@@ -129,7 +129,7 @@ export default function CatalogPage() {
       >
         <Container maxWidth="xl">
           <Stack spacing={2.5} alignItems="center" textAlign="center">
-            <Typography variant={isMdUp ? "h3" : "h4"}>
+            <Typography variant={isMdUp ? "h3" : "h4"} sx={{ fontFamily: "'Cairo', sans-serif" }}>
               كتالوج المنتجات
             </Typography>
             <Typography

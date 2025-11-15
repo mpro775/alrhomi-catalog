@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import reportWebVitals from './reportWebVitals';
 import './i18n'; // Import i18n configuration
+import './index.css';
 import './App.css';
 
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -15,10 +16,15 @@ import rtl from 'stylis-rtl';
 import { HelmetProvider } from 'react-helmet-async';
 import App from './App';
 
-// Create rtl cache
+// Set RTL direction and language on HTML element
+document.documentElement.setAttribute('dir', 'rtl');
+document.documentElement.setAttribute('lang', 'ar');
+
+// Create rtl cache with correct plugin order
 const cacheRtl = createCache({
   key: 'muirtl',
   stylisPlugins: [prefixer, rtl],
+  prepend: true,
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

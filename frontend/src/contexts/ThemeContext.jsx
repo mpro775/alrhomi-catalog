@@ -112,6 +112,13 @@ export function ThemeProvider({ children }) {
     setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
   };
 
+  // Ensure HTML direction is set to RTL
+  useEffect(() => {
+    document.documentElement.setAttribute('dir', 'rtl');
+    document.documentElement.setAttribute('lang', 'ar');
+    document.body.setAttribute('dir', 'rtl');
+  }, []);
+
   return (
     <ThemeContext.Provider value={{ mode, toggleMode }}>
       <MUIThemeProvider theme={theme}>

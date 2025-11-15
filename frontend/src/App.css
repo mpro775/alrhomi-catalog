@@ -1,8 +1,11 @@
 body {
   background-color: #f7f9fc;
-  font-family: "Cairo", "Tahoma", sans-serif;
+  font-family: 'Cairo', 'Tahoma', sans-serif;
+  direction: rtl;
+  text-align: right;
 }
 
 #root {
   min-height: 100vh;
+  direction: rtl;
 }

@@ -155,6 +155,140 @@ export class ProductsService {
       throw new NotFoundException('المنتج غير موجود');
     }
 
+    const images = await this.imageModel
+      .find({ product: product._id })
+      .select('_id originalUrl watermarkedUrl isWatermarked status createdAt')
+      .sort({ createdAt: -1 })
+      .exec();
+
+    const categoryName = extractCategoryName(product.category);
+    const subcategoryName = extractCategoryName(product.subcategory);
+    const imageIds = Array.isArray(product.images)
+      ? product.images.map((imgId) => imgId.toString())
+      : [];
+
+    return {
+      _id: product._id,
+      category: categoryName,
+      subcategory: subcategoryName,
+      model: product.model,
+      productName: product.productName,
+      productCode: product.productCode,
+      variants: product.variants,
+      tags: product.tags,
+      note: product.note,
+      description: product.description,
+      images,
+      imageIds,
+      imageCount: images.length,
+      createdAt: product.get('createdAt') as Date,
+      updatedAt: product.get('updatedAt') as Date,
+    };
+  }
+
+  async findAllPublic(queryDto: ProductQueryDto) {
+    const { page = 1, limit = 24, q, category, model, productCode } = queryDto;
+
+    const filter: Record<string, unknown> = {};
+    if (category && Types.ObjectId.isValid(category)) {
+      filter.category = new Types.ObjectId(category);
+    }
+    if (model) filter.model = model;
+    if (productCode) filter.productCode = productCode;
+
+    if (q) {
+      const regex = new RegExp(q.trim(), 'i');
+      filter.$or = [
+        { productName: regex },
+        { description: regex },
+        { productCode: regex },
+        { tags: regex },
+        { note: regex },
+      ];
+    }
+
+    const totalItems = await this.productModel.countDocuments(filter);
+    const totalPages = Math.ceil(totalItems / limit);
+
+    const products = await this.productModel
+      .find(filter)
+      .populate('category', 'name')
+      .populate('subcategory', 'name')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
+
+    const productIds = products.map((p) => p._id);
+    const productImagesMap = new Map<string, { _id: Types.ObjectId; originalUrl: string; watermarkedUrl: string; isWatermarked: boolean }>();
+
+    if (productIds.length > 0) {
+      const images = await this.imageModel
+        .aggregate([
+          { $match: { product: { $in: productIds } } },
+          { $sort: { createdAt: -1 } },
+          {
+            $group: {
+              _id: '$product',
+              firstImage: { $first: '$$ROOT' },
+            },
+          },
+        ])
+        .exec();
+
+      images.forEach((item) => {
+        if (item.firstImage) {
+          productImagesMap.set(item._id.toString(), {
+            _id: item.firstImage._id,
+            originalUrl: item.firstImage.originalUrl,
+            watermarkedUrl: item.firstImage.watermarkedUrl,
+            isWatermarked: item.firstImage.isWatermarked,
+          });
+        }
+      });
+    }
+
+    const items = products.map((product) => {
+      const categoryName = extractCategoryName(product.category);
+      const subcategoryName = extractCategoryName(product.subcategory);
+      const productId = product._id instanceof Types.ObjectId ? product._id.toString() : String(product._id);
+      const firstImage = productImagesMap.get(productId);
+
+      return {
+        _id: product._id,
+        category: categoryName,
+        subcategory: subcategoryName,
+        model: product.model,
+        productName: product.productName,
+        productCode: product.productCode,
+        description: product.description,
+        tags: product.tags,
+        originalUrl: firstImage?.watermarkedUrl || firstImage?.originalUrl || null,
+        watermarkedUrl: firstImage?.watermarkedUrl || null,
+        isWatermarked: firstImage?.isWatermarked || false,
+        imageId: firstImage?._id || null,
+        createdAt: product.get('createdAt') as Date,
+      };
+    });
+
+    return { page, totalPages, totalItems, items };
+  }
+
+  async findOnePublic(id: string) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('معرّف غير صالح');
+    }
+
+    const product = await this.productModel
+      .findById(id)
+      .populate('category', 'name')
+      .populate('subcategory', 'name')
+      .exec();
+
+    if (!product) {
+      throw new NotFoundException('المنتج غير موجود');
+    }
+
     // Get associated images
     const images = await this.imageModel
       .find({ product: product._id })

@@ -28,7 +28,8 @@ import {
   Info,
 } from "@mui/icons-material";
 import ImageGrid from "../components/ImageGrid";
-import { getImageById, getRelatedImages } from "../api/images";
+import { getProductById } from "../api/products";
+import { getRelatedImages } from "../api/images";
 import SEO from "../components/SEO";
 import {
   getProductSchema,
@@ -51,7 +52,7 @@ export default function ProductDetail() {
       setLoading(true);
       setError(null);
       try {
-        const res = await getImageById(id);
+        const res = await getProductById(id);
         setProduct(res.data);
       } catch (err) {
         console.error("Failed to fetch product", err);
@@ -81,18 +82,22 @@ export default function ProductDetail() {
   // إضافة البيانات المنظمة للمنتج
   useEffect(() => {
     if (product) {
+      const firstImage = product.images && product.images.length > 0 
+        ? (product.images[0].watermarkedUrl || product.images[0].originalUrl)
+        : null;
+      
       const productSchema = getProductSchema({
         id: product._id,
-        name: product.name || product.title || "منتج",
-        description: product.description || `صورة ${product.name || "منتج"} عالية الجودة`,
-        imageUrl: product.url,
-        category: product.category?.name || "منتجات عامة",
+        name: product.productName || product.name || "منتج",
+        description: product.description || `منتج ${product.productName || "منتج"} عالية الجودة`,
+        imageUrl: firstImage,
+        category: product.category || "منتجات عامة",
       });
 
       const breadcrumbSchema = getBreadcrumbSchema([
         { name: "الرئيسية", path: "/" },
         { name: "الكتالوج", path: "/catalog" },
-        { name: product.name || "المنتج", path: `/product/${product._id}` },
+        { name: product.productName || product.name || "المنتج", path: `/product/${product._id}` },
       ]);
 
       injectMultipleSchemas([productSchema, breadcrumbSchema]);
@@ -121,9 +126,9 @@ export default function ProductDetail() {
         color: "info",
       },
       {
-        label: "تاريخ الرفع",
-        value: product.uploadedAt
-          ? new Date(product.uploadedAt).toLocaleDateString("ar-EG", {
+        label: "تاريخ الإنشاء",
+        value: product.createdAt
+          ? new Date(product.createdAt).toLocaleDateString("ar-EG", {
               year: "numeric",
               month: "long",
               day: "numeric",
@@ -136,13 +141,13 @@ export default function ProductDetail() {
   }, [product]);
 
   const pageTitle = product
-    ? `${product.name || "منتج"} - كتالوج الرحومي`
+    ? `${product.productName || product.name || "منتج"} - كتالوج الرحومي`
     : "تفاصيل المنتج - كتالوج الرحومي";
   
   const pageDescription = product
-    ? `تفاصيل ${product.name || "منتج"} في كتالوج الرحومي${
-        product.category?.name ? ` - فئة ${product.category.name}` : ""
-      }. صورة عالية الجودة مع إمكانية التحميل المباشر.`
+    ? `تفاصيل ${product.productName || product.name || "منتج"} في كتالوج الرحومي${
+        product.category ? ` - فئة ${product.category}` : ""
+      }. منتج عالي الجودة مع صور متعددة.`
     : "تفاصيل المنتج في كتالوج الرحومي. صور منتجات عالية الجودة.";
 
   return (
@@ -150,8 +155,8 @@ export default function ProductDetail() {
       <SEO
         title={pageTitle}
         description={pageDescription}
-        keywords={`${product?.name || "منتج"}, ${product?.category?.name || "منتجات"}, صور منتجات, كتالوج الرحومي`}
-        image={product?.url || "/logo512.png"}
+        keywords={`${product?.productName || product?.name || "منتج"}, ${product?.category || "منتجات"}, صور منتجات, كتالوج الرحومي`}
+        image={product?.images && product.images.length > 0 ? (product.images[0].watermarkedUrl || product.images[0].originalUrl) : "/logo512.png"}
         type="product"
       />
       <Box
@@ -257,7 +262,11 @@ export default function ProductDetail() {
                 >
                   <Box
                     component="img"
-                    src={product.watermarkedUrl || product.originalUrl}
+                    src={
+                      product.images && product.images.length > 0
+                        ? (product.images[0].watermarkedUrl || product.images[0].originalUrl)
+                        : null
+                    }
                     alt={product.productName || product.description}
                     sx={{
                       width: "100%",
@@ -572,6 +581,36 @@ export default function ProductDetail() {
             )}
           </Grid>
         </Grid>
+
+        {product?.images && product.images.length > 1 && (
+          <Box sx={{ mt: { xs: 6, sm: 8, md: 10 }, px: { xs: 1, sm: 0 } }}>
+            <Typography
+              variant="h4"
+              sx={{
+                mb: { xs: 3, sm: 4 },
+                textAlign: "center",
+                fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" },
+              }}
+            >
+              صور المنتج
+            </Typography>
+            <ImageGrid
+              images={product.images.map(img => ({
+                _id: img._id,
+                productName: product.productName,
+                description: product.description,
+                category: product.category,
+                originalUrl: img.originalUrl,
+                watermarkedUrl: img.watermarkedUrl,
+                isWatermarked: img.isWatermarked,
+              }))}
+              withDownload
+              onSelect={(img) => {
+                // يمكن إضافة modal للصور هنا
+              }}
+            />
+          </Box>
+        )}
 
         <Box sx={{ mt: { xs: 6, sm: 8, md: 10 }, px: { xs: 1, sm: 0 } }}>
           <Typography

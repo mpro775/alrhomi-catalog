@@ -101,8 +101,8 @@ export const getItemListSchema = (items, category) => ({
   itemListElement: items.slice(0, 10).map((item, index) => ({
     "@type": "ListItem",
     position: index + 1,
-    url: `${window.location.origin}/product/${item.id}`,
-    name: item.name || item.title,
+    url: `${window.location.origin}/product/${item._id}`,
+    name: item.productName || item.name || item.title,
   })),
 });
 

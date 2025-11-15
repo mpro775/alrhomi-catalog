@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProductsController } from './products.controller';
+import { PublicProductsController } from './public-products.controller';
 import { ProductsService } from './products.service';
 import { ProductSchema } from '../database/schemas/product.schema';
 import { ImageSchema } from '../database/schemas/image.schema';
@@ -12,7 +13,7 @@ import { ImageSchema } from '../database/schemas/image.schema';
       { name: 'Image', schema: ImageSchema },
     ]),
   ],
-  controllers: [ProductsController],
+  controllers: [ProductsController, PublicProductsController],
   providers: [ProductsService],
   exports: [ProductsService],
 })

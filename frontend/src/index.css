@@ -1,3 +1,21 @@
-html, body, #root {
+html {
+  direction: rtl;
+  font-family: 'Cairo', sans-serif;
+}
+
+body {
+  direction: rtl;
+  font-family: 'Cairo', sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  direction: rtl;
+  font-family: 'Cairo', sans-serif;
+}
+
+* {
   font-family: 'Cairo', sans-serif;
 }

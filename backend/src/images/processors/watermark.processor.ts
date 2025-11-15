@@ -49,6 +49,8 @@ export class WatermarkProcessor {
       id: jobId,
     } = job;
 
+    this.logger.log(`🔄 Starting job ${jobId} for image ${_id}, S3 key: ${s3Key}`);
+
     const tmpDir = path.resolve(process.cwd(), 'tmp');
     fs.mkdirSync(tmpDir, { recursive: true });
 
@@ -59,6 +61,10 @@ export class WatermarkProcessor {
     const logoPath = path.resolve(process.cwd(), 'assets', 'logo.png');
 
     try {
+      // Check if logo exists
+      if (!fs.existsSync(logoPath)) {
+        throw new Error(`Logo file not found at: ${logoPath}`);
+      }
       // Update job status
       await this.jobStatusModel.findOneAndUpdate(
         { jobId: jobId.toString() },
@@ -71,6 +77,8 @@ export class WatermarkProcessor {
         jobId: jobId.toString(),
         progress: 0,
       });
+
+      this.logger.log(`📥 Downloading image from S3: ${s3Key}`);
 
       // Download image from S3
       const getObj = await this.s3Client.send(
@@ -87,11 +95,17 @@ export class WatermarkProcessor {
       }
       await finished(ws);
 
+      this.logger.log(`✅ Image downloaded, starting background removal`);
+
       // Remove background
       await this.removeBackgroundBySampling(origPath, transparentP, 50);
 
+      this.logger.log(`✅ Background removed, starting logo composition`);
+
       // Composite logo
       await this.compositeLogoWithSmallBadge(transparentP, logoPath, logoPath, outPath);
+
+      this.logger.log(`✅ Logo composed, uploading to S3`);
 
       // Upload watermarked image to S3
       const watermarkedKey = `watermarked/${_id}.png`;
@@ -121,12 +135,22 @@ export class WatermarkProcessor {
 
       this.logger.log(`✅ Job ${jobId} completed. URL: ${watermarkedUrl}`);
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      const errorStack = err instanceof Error ? err.stack : undefined;
+
+      this.logger.error(`❌ Job ${jobId} failed for image ${_id}: ${errorMessage}`, errorStack);
+
       await this.jobStatusModel.findOneAndUpdate(
         { jobId: jobId.toString() },
         { status: 'failed', finishedAt: new Date() },
       );
       await this.imageModel.findByIdAndUpdate(_id, { status: 'failed' });
-      this.logger.error(`❌ Job ${jobId} failed:`, err);
+
+      // Cleanup on error
+      this.safeUnlink(origPath);
+      this.safeUnlink(transparentP);
+      this.safeUnlink(outPath);
+
       throw err;
     }
   }
@@ -136,37 +160,67 @@ export class WatermarkProcessor {
     const { data, info } = await img.raw().toBuffer({ resolveWithObject: true });
     const { width, height, channels } = info;
 
+    // تحسين أخذ العينة: أخذ عينة من الزوايا فقط (أكثر موثوقية للخلفية)
+    const cornerSize = Math.min(Math.floor(width * 0.1), Math.floor(height * 0.1), 50);
     let sumR = 0,
       sumG = 0,
       sumB = 0,
       count = 0;
+
     const sample = (x: number, y: number) => {
-      const idx = (y * width + x) * channels;
-      sumR += data[idx];
-      sumG += data[idx + 1];
-      sumB += data[idx + 2];
-      count++;
+      if (x >= 0 && x < width && y >= 0 && y < height) {
+        const idx = (y * width + x) * channels;
+        sumR += data[idx];
+        sumG += data[idx + 1];
+        sumB += data[idx + 2];
+        count++;
+      }
     };
 
-    for (let x = 0; x < width; x++) {
-      sample(x, 0);
-      sample(x, height - 1);
+    // أخذ عينة من الزوايا فقط (أكثر دقة للخلفية)
+    for (let x = 0; x < cornerSize; x++) {
+      for (let y = 0; y < cornerSize; y++) {
+        // الزاوية العلوية اليسرى
+        sample(x, y);
+        // الزاوية العلوية اليمنى
+        sample(width - 1 - x, y);
+        // الزاوية السفلية اليسرى
+        sample(x, height - 1 - y);
+        // الزاوية السفلية اليمنى
+        sample(width - 1 - x, height - 1 - y);
+      }
     }
-    for (let y = 0; y < height; y++) {
-      sample(0, y);
-      sample(width - 1, y);
+
+    // إذا فشل أخذ العينة، احفظ الصورة كما هي بدون تعديل
+    if (count === 0) {
+      await img.png().toFile(outputPath);
+      return;
     }
 
     const Rb = sumR / count;
     const Gb = sumG / count;
     const Bb = sumB / count;
 
+    // تقليل tolerance وتحسين المنطق
+    const toleranceSquared = tolerance * tolerance;
+
     for (let i = 0; i < data.length; i += channels) {
       const dr = data[i] - Rb;
       const dg = data[i + 1] - Gb;
       const db = data[i + 2] - Bb;
-      const dist = Math.sqrt(dr * dr + dg * dg + db * db);
-      if (dist <= tolerance) data[i + 3] = 0;
+      const distSquared = dr * dr + dg * dg + db * db;
+
+      // فقط إزالة البكسل إذا كان قريب جداً من لون الخلفية
+      // وإضافة شرط: يجب أن يكون البكسل في الحواف أو قريب منها
+      const pixelIndex = i / channels;
+      const x = pixelIndex % width;
+      const y = Math.floor(pixelIndex / width);
+      const isNearEdge =
+        x < cornerSize || x >= width - cornerSize || y < cornerSize || y >= height - cornerSize;
+
+      if (distSquared <= toleranceSquared && isNearEdge) {
+        data[i + 3] = 0; // شفافية
+      }
     }
 
     await sharp(data, { raw: { width, height, channels } }).png().toFile(outputPath);
@@ -181,7 +235,6 @@ export class WatermarkProcessor {
     const prod = sharp(productPath);
     const meta = await prod.metadata();
 
-    // Big logo كخلفية كاملة
     const maxDim = Math.min(meta.width || 0, meta.height || 0);
 
     // Small badge (10% of smallest dimension)
@@ -199,16 +252,26 @@ export class WatermarkProcessor {
     const badgeTop = (meta.height || 0) - badgeH - 10;
     const badgeLeft = Math.floor(((meta.width || 0) - badgeW) / 2);
 
-    // Composite مع الشعار كخلفية حقيقية
-    await sharp(logoPath) // ابدأ بالشعار كقاعدة
+    // الحصول على buffer المنتج مع الحفاظ على الألوان والشفافية
+    const productBuf = await prod.png().ensureAlpha().toBuffer();
+
+    // استخدام 'over' blend mode مع ضمان الحفاظ على الألوان
+    await sharp(logoPath)
       .resize(meta.width, meta.height, {
-        // اجعل الشعار بحجم الصورة الكامل
         fit: 'cover',
         position: 'center',
       })
       .composite([
-        { input: await prod.png().toBuffer(), blend: 'over' }, // الصورة الأصلية فوق الشعار
-        { input: badgeBuf, top: badgeTop, left: badgeLeft, blend: 'over' }, // الشارة الصغيرة في الأعلى
+        {
+          input: productBuf,
+          blend: 'over', // هذا يحافظ على الألوان الأصلية
+        },
+        {
+          input: badgeBuf,
+          top: badgeTop,
+          left: badgeLeft,
+          blend: 'over',
+        },
       ])
       .png()
       .toFile(outputPath);

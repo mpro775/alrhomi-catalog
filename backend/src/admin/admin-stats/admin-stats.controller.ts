@@ -40,6 +40,14 @@ export class AdminStatsController {
     },
   })
   async getStats() {
-    return this.adminStatsService.getStats();
+    console.log(`[${new Date().toISOString()}] AdminStats: Request received`);
+    try {
+      const result = await this.adminStatsService.getStats();
+      console.log(`[${new Date().toISOString()}] AdminStats: Request completed successfully`);
+      return result;
+    } catch (error) {
+      console.error(`[${new Date().toISOString()}] AdminStats: Request failed:`, error);
+      throw error;
+    }
   }
 }

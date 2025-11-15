@@ -56,11 +56,17 @@ export class ImagesService {
 
     try {
       // Upload original file to S3
+      if (!fs.existsSync(tempPath)) {
+        throw new BadRequestException('الملف المؤقت غير موجود');
+      }
+
       const fileStream = fs.createReadStream(tempPath);
       const originalUrl = await this.storageService.uploadFile(s3Key, fileStream, file.mimetype);
 
       // Delete temp file
-      fs.unlinkSync(tempPath);
+      if (fs.existsSync(tempPath)) {
+        fs.unlinkSync(tempPath);
+      }
 
       // Create image document مرتبط بالمنتج
       const imageDoc = await this.imageModel.create({
@@ -97,7 +103,11 @@ export class ImagesService {
     } catch (error) {
       // Clean up temp file if exists
       if (fs.existsSync(tempPath)) {
-        fs.unlinkSync(tempPath);
+        try {
+          fs.unlinkSync(tempPath);
+        } catch (unlinkError) {
+          // Ignore unlink errors during cleanup
+        }
       }
       throw error;
     }

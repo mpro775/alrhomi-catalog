@@ -9,6 +9,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -45,6 +46,9 @@ export class ImagesController {
           cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
         },
       }),
+      limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB
+      },
     }),
   )
   @ApiConsumes('multipart/form-data')
@@ -69,7 +73,23 @@ export class ImagesController {
     description: 'تم رفع الصورة بنجاح',
   })
   async upload(@UploadedFile() file: Express.Multer.File, @Body() uploadDto: UploadImageDto) {
-    return this.imagesService.upload(file, uploadDto);
+    if (!file) {
+      throw new BadRequestException('لم يتم رفع ملف');
+    }
+    console.log(`[${new Date().toISOString()}] Upload started: ${file.originalname} (${file.size} bytes)`);
+    try {
+      const result = await this.imagesService.upload(file, uploadDto);
+      console.log(
+        `[${new Date().toISOString()}] Upload completed: ${file.originalname}, Image ID: ${result.id}, Job ID: ${result.jobId}`,
+      );
+      return result;
+    } catch (error) {
+      console.error(`[${new Date().toISOString()}] Upload failed: ${file.originalname}`, error);
+      if (error instanceof Error) {
+        console.error('Error details:', error.message, error.stack);
+      }
+      throw error;
+    }
   }
 
   @Get()

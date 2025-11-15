@@ -22,10 +22,27 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: UserPayload): Promise<UserPayload> {
-    const user = await this.userModel.findById(payload.sub).exec();
-    if (!user) {
-      throw new UnauthorizedException('المستخدم غير موجود');
+    try {
+      console.log(`[${new Date().toISOString()}] JWT validate: Starting validation for sub=${payload?.sub}`);
+      
+      if (!payload || !payload.sub) {
+        console.error(`[${new Date().toISOString()}] JWT validate: Invalid payload`, payload);
+        throw new UnauthorizedException('حمولة التوكن غير صالحة');
+      }
+
+      console.log(`[${new Date().toISOString()}] JWT validate: Looking up user ${payload.sub}`);
+      const user = await this.userModel.findById(payload.sub).exec();
+      
+      if (!user) {
+        console.error(`[${new Date().toISOString()}] JWT validate: User not found`, payload.sub);
+        throw new UnauthorizedException('المستخدم غير موجود');
+      }
+
+      console.log(`[${new Date().toISOString()}] JWT validate: User found, role=${user.role}`);
+      return { sub: payload.sub, role: payload.role };
+    } catch (error) {
+      console.error(`[${new Date().toISOString()}] JWT validate error:`, error);
+      throw error;
     }
-    return { sub: payload.sub, role: payload.role };
   }
 }

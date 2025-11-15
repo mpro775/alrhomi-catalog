@@ -15,20 +15,33 @@ export class AdminStatsService {
   ) {}
 
   async getStats() {
-    // Total images count
-    const totalImages = await this.imageModel.countDocuments().exec();
+    try {
+      console.log(`[${new Date().toISOString()}] AdminStats: Starting stats calculation`);
+      
+      // Total images count
+      const totalImages = await this.imageModel.countDocuments().exec();
+      console.log(`[${new Date().toISOString()}] AdminStats: Total images: ${totalImages}`);
 
-    // Watermarked images count
-    const watermarkedCount = await this.imageModel.countDocuments({ isWatermarked: true }).exec();
+      // Watermarked images count
+      const watermarkedCount = await this.imageModel.countDocuments({ isWatermarked: true }).exec();
+      console.log(`[${new Date().toISOString()}] AdminStats: Watermarked: ${watermarkedCount}`);
 
-    // Queue statistics
-    const counts = await this.imageQueue.getJobCounts();
-    const pendingJobs = counts.waiting + counts.active + counts.delayed;
+      // Queue statistics
+      const counts = await this.imageQueue.getJobCounts();
+      const pendingJobs = counts.waiting + counts.active + counts.delayed;
+      console.log(`[${new Date().toISOString()}] AdminStats: Pending jobs: ${pendingJobs}`);
 
-    return {
-      totalImages,
-      watermarkedCount,
-      pendingJobs,
-    };
+      const result = {
+        totalImages,
+        watermarkedCount,
+        pendingJobs,
+      };
+
+      console.log(`[${new Date().toISOString()}] AdminStats: Stats calculation completed`);
+      return result;
+    } catch (error) {
+      console.error(`[${new Date().toISOString()}] AdminStats: Error calculating stats:`, error);
+      throw error;
+    }
   }
 }

@@ -21,6 +21,21 @@ export class AdminStatsController {
     schema: {
       type: 'object',
       properties: {
+        totalProducts: {
+          type: 'number',
+          description: 'إجمالي عدد المنتجات في النظام',
+          example: 100,
+        },
+        productsWithImages: {
+          type: 'number',
+          description: 'عدد المنتجات التي تحتوي على صور',
+          example: 85,
+        },
+        productsWithoutImages: {
+          type: 'number',
+          description: 'عدد المنتجات التي لا تحتوي على صور',
+          example: 15,
+        },
         totalImages: {
           type: 'number',
           description: 'إجمالي عدد الصور في النظام',

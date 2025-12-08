@@ -48,17 +48,18 @@ if (!dotenvLoaded) {
   }
 }
 
-// اقرأ الإعدادات من متغيرات البيئة
-// في Docker، المتغيرات تُمرر تلقائياً من docker-compose.yml
-const MONGO_ROOT_USERNAME = process.env.MONGO_ROOT_USERNAME;
-const MONGO_ROOT_PASSWORD = process.env.MONGO_ROOT_PASSWORD;
-const MONGODB_PORT = process.env.MONGODB_PORT || '27017';
-const MONGODB_HOST = process.env.MONGODB_HOST || '89.116.228.32';
-const MONGODB_DATABASE = process.env.MONGODB_DATABASE || 'product-catalog';
-
-// بناء URI الاتصال مع المصادقة إذا كانت متوفرة
+// اقرأ إعدادات MongoDB من متغيرات البيئة
+// الأولوية لـ MONGODB_URI (مثل MongoDB Atlas connection string)
 let MONGODB_URI = process.env.MONGODB_URI;
+
+// إذا لم يكن MONGODB_URI موجوداً، نحاول بناءه من المتغيرات الأخرى (للتوافق مع الإصدارات القديمة)
 if (!MONGODB_URI) {
+  const MONGO_ROOT_USERNAME = process.env.MONGO_ROOT_USERNAME;
+  const MONGO_ROOT_PASSWORD = process.env.MONGO_ROOT_PASSWORD;
+  const MONGODB_PORT = process.env.MONGODB_PORT || '27017';
+  const MONGODB_HOST = process.env.MONGODB_HOST || 'localhost';
+  const MONGODB_DATABASE = process.env.MONGODB_DATABASE || 'product-catalog';
+
   if (MONGO_ROOT_USERNAME && MONGO_ROOT_PASSWORD) {
     // بناء URI مع المصادقة
     MONGODB_URI = `mongodb://${encodeURIComponent(MONGO_ROOT_USERNAME)}:${encodeURIComponent(MONGO_ROOT_PASSWORD)}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}?authSource=admin`;
@@ -67,18 +68,15 @@ if (!MONGODB_URI) {
     MONGODB_URI = `mongodb://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DATABASE}`;
     console.warn('⚠️  تحذير: لا توجد بيانات مصادقة MongoDB. تأكد من أن MongoDB لا يتطلب مصادقة.');
   }
-} else {
-  // إذا كان MONGODB_URI موجوداً لكن لا يحتوي على مصادقة، نحاول إضافتها
-  if (MONGO_ROOT_USERNAME && MONGO_ROOT_PASSWORD && !MONGODB_URI.includes('@')) {
-    // استخراج الأجزاء من URI الموجود
-    // نمط: mongodb://host:port/database أو mongodb://host/database
-    const uriMatch = MONGODB_URI.match(/^mongodb:\/\/([^\/]+)(\/.+)?$/);
-    if (uriMatch) {
-      const [, hostPart, dbPart = '/product-catalog'] = uriMatch;
-      const queryString = dbPart.includes('?') ? '&authSource=admin' : '?authSource=admin';
-      MONGODB_URI = `mongodb://${encodeURIComponent(MONGO_ROOT_USERNAME)}:${encodeURIComponent(MONGO_ROOT_PASSWORD)}@${hostPart}${dbPart}${queryString}`;
-    }
-  }
+}
+
+// التحقق من وجود MONGODB_URI
+if (!MONGODB_URI) {
+  console.error('❌ خطأ: يجب توفير MONGODB_URI في ملف .env');
+  console.error(
+    '   مثال: MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database',
+  );
+  process.exit(1);
 }
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
@@ -105,21 +103,11 @@ async function main() {
   try {
     // 1. اتصال بقاعدة البيانات
     console.log('🔄 جاري الاتصال بقاعدة البيانات...');
-    
-    // عرض معلومات التشخيص (في وضع التطوير)
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`🔍 معلومات التشخيص:`);
-      console.log(`   MONGO_ROOT_USERNAME: ${MONGO_ROOT_USERNAME ? '✓ موجود' : '✗ غير موجود'}`);
-      console.log(`   MONGO_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD ? '✓ موجود' : '✗ غير موجود'}`);
-      console.log(`   MONGODB_HOST: ${MONGODB_HOST}`);
-      console.log(`   MONGODB_PORT: ${MONGODB_PORT}`);
-      console.log(`   MONGODB_DATABASE: ${MONGODB_DATABASE}`);
-    }
-    
+
     // عرض معلومات الاتصال (بدون كلمة المرور)
     const uriForDisplay = MONGODB_URI.replace(/:([^:@]+)@/, ':****@');
-    console.log(`📡 URI: ${uriForDisplay}`);
-    
+    console.log(`📡 MongoDB URI: ${uriForDisplay}`);
+
     await mongoose.connect(MONGODB_URI);
     console.log('✓ تم الاتصال بقاعدة البيانات بنجاح');
 

@@ -4,12 +4,15 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { Model } from 'mongoose';
 import { ImageDocument } from '../../database/schemas/image.schema';
+import { ProductDocument } from '../../database/schemas/product.schema';
 
 @Injectable()
 export class AdminStatsService {
   constructor(
     @InjectModel('Image')
     private imageModel: Model<ImageDocument>,
+    @InjectModel('Product')
+    private productModel: Model<ProductDocument>,
     @InjectQueue('image-processing')
     private imageQueue: Queue,
   ) {}
@@ -18,7 +21,27 @@ export class AdminStatsService {
     try {
       console.log(`[${new Date().toISOString()}] AdminStats: Starting stats calculation`);
       
-      // Total images count
+      // Products statistics (الأساس)
+      const totalProducts = await this.productModel.countDocuments().exec();
+      console.log(`[${new Date().toISOString()}] AdminStats: Total products: ${totalProducts}`);
+
+      // Products with images - استخدام aggregate للتحقق من وجود صور مرتبطة
+      // نتحقق من وجود صور في جدول Image مرتبطة بالمنتج
+      const productsWithImagesResult = await this.imageModel
+        .aggregate([
+          { $match: { product: { $ne: null } } },
+          { $group: { _id: '$product' } },
+          { $count: 'count' },
+        ])
+        .exec();
+      const productsWithImages = productsWithImagesResult.length > 0 ? productsWithImagesResult[0].count : 0;
+      console.log(`[${new Date().toISOString()}] AdminStats: Products with images: ${productsWithImages}`);
+
+      // Products without images
+      const productsWithoutImages = totalProducts - productsWithImages;
+      console.log(`[${new Date().toISOString()}] AdminStats: Products without images: ${productsWithoutImages}`);
+
+      // Images statistics (تابعة للمنتجات)
       const totalImages = await this.imageModel.countDocuments().exec();
       console.log(`[${new Date().toISOString()}] AdminStats: Total images: ${totalImages}`);
 
@@ -32,6 +55,11 @@ export class AdminStatsService {
       console.log(`[${new Date().toISOString()}] AdminStats: Pending jobs: ${pendingJobs}`);
 
       const result = {
+        // Products (الأساس)
+        totalProducts,
+        productsWithImages,
+        productsWithoutImages,
+        // Images (تابعة)
         totalImages,
         watermarkedCount,
         pendingJobs,

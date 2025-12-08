@@ -10,6 +10,11 @@ import RecentUsersCard from "./components/RecentUsersCard";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
+    // Products (الأساس)
+    totalProducts: 0,
+    productsWithImages: 0,
+    productsWithoutImages: 0,
+    // Images (تابعة)
     totalImages: 0,
     watermarkedCount: 0,
     pendingJobs: 0,
@@ -40,6 +45,9 @@ export default function AdminDashboard() {
         if (statsResponse.data && !statsResponse.data.error) {
           console.log("← fetchStats returned", statsResponse.data);
           setStats({
+            totalProducts: statsResponse.data.totalProducts ?? 0,
+            productsWithImages: statsResponse.data.productsWithImages ?? 0,
+            productsWithoutImages: statsResponse.data.productsWithoutImages ?? 0,
             totalImages: statsResponse.data.totalImages ?? 0,
             watermarkedCount: statsResponse.data.watermarkedCount ?? 0,
             pendingJobs: statsResponse.data.pendingJobs ?? 0,
@@ -76,6 +84,9 @@ export default function AdminDashboard() {
         // معالجة أخطاء الوقت الفائت
           console.error("Error fetching dashboard data:", err.message);
           setStats({
+            totalProducts: 0,
+            productsWithImages: 0,
+            productsWithoutImages: 0,
             totalImages: 0,
             watermarkedCount: 0,
             pendingJobs: 0,

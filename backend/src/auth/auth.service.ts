@@ -49,21 +49,34 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<AuthResponseDto> {
     const { username, password } = loginDto;
 
+    console.log(`[AuthService] Login attempt for username: ${username}`);
+
     // Find user
     const user = await this.userModel.findOne({ username }).exec();
     if (!user) {
+      console.error(`[AuthService] ❌ User not found: ${username}`);
+      // Check if any users exist
+      const userCount = await this.userModel.countDocuments().exec();
+      console.log(`[AuthService] Total users in database: ${userCount}`);
       throw new UnauthorizedException('بيانات غير صحيحة');
     }
+
+    console.log(`[AuthService] ✓ User found: ${username}, role: ${user.role}`);
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
+      console.error(`[AuthService] ❌ Invalid password for user: ${username}`);
       throw new UnauthorizedException('بيانات غير صحيحة');
     }
 
+    console.log(`[AuthService] ✓ Password verified for user: ${username}`);
+
     // Generate JWT token
+    // Use _id.toString() instead of id for MongoDB
+    const userId = user._id ? user._id.toString() : (user as any).id;
     const payload: UserPayload = {
-      sub: user.id,
+      sub: userId,
       role: user.role as 'rep' | 'admin',
     };
 
@@ -71,6 +84,8 @@ export class AuthService {
     const token = this.jwtService.sign(payload, {
       expiresIn: jwtConfig.expiresIn,
     });
+
+    console.log(`[AuthService] Login successful for user: ${username}, role: ${user.role}`);
 
     return {
       token,

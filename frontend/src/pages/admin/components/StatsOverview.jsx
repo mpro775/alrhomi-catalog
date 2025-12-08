@@ -11,24 +11,43 @@ import {
   HourglassTop as HourglassIcon,
   WaterDrop as WatermarkIcon,
   Person as PersonIcon,
+  Inventory as ProductIcon,
+  PhotoLibrary as ProductsWithImagesIcon,
+  PhotoCameraOutlined as ProductsWithoutImagesIcon,
 } from "@mui/icons-material";
 import { useMemo } from "react";
 import { useTheme } from "@mui/material/styles";
 
 const STAT_VARIANTS = [
+  // Products (الأساس) - أولوية في العرض
   {
-    key: "totalImages",
-    label: "إجمالي الصور",
-    icon: <ImageIcon />,
+    key: "totalProducts",
+    label: "إجمالي المنتجات",
+    icon: <ProductIcon />,
+    border: "#9c27b0",
+    gradient: "linear-gradient(135deg, #9c27b0 0%, #ba68c8 100%)",
+  },
+  {
+    key: "productsWithImages",
+    label: "منتجات مع صور",
+    icon: <ProductsWithImagesIcon />,
     border: "#4caf50",
     gradient: "linear-gradient(135deg, #4caf50 0%, #66bb6a 100%)",
   },
   {
-    key: "pendingJobs",
-    label: "مهام بانتظار المعالجة",
-    icon: <HourglassIcon />,
-    border: "#ff9800",
-    gradient: "linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)",
+    key: "productsWithoutImages",
+    label: "منتجات بدون صور",
+    icon: <ProductsWithoutImagesIcon />,
+    border: "#f44336",
+    gradient: "linear-gradient(135deg, #f44336 0%, #e57373 100%)",
+  },
+  // Images (تابعة)
+  {
+    key: "totalImages",
+    label: "إجمالي الصور",
+    icon: <ImageIcon />,
+    border: "#00acc1",
+    gradient: "linear-gradient(135deg, #00acc1 0%, #26c6da 100%)",
   },
   {
     key: "watermarkedCount",
@@ -38,11 +57,18 @@ const STAT_VARIANTS = [
     gradient: "linear-gradient(135deg, #2196f3 0%, #42a5f5 100%)",
   },
   {
+    key: "pendingJobs",
+    label: "مهام بانتظار المعالجة",
+    icon: <HourglassIcon />,
+    border: "#ff9800",
+    gradient: "linear-gradient(135deg, #ff9800 0%, #ffb74d 100%)",
+  },
+  {
     key: "activeUsers",
     label: "المستخدمون النشطون",
     icon: <PersonIcon />,
-    border: "#00acc1",
-    gradient: "linear-gradient(135deg, #00acc1 0%, #26c6da 100%)",
+    border: "#607d8b",
+    gradient: "linear-gradient(135deg, #607d8b 0%, #78909c 100%)",
   },
 ];
 

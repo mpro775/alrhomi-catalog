@@ -1,0 +1,49 @@
+/* Cairo Font - Self-hosted locally */
+
+@font-face {
+  font-family: "Cairo";
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("./Cairo-ExtraLight.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Cairo";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("./Cairo-Light.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Cairo";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("./Cairo-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Cairo";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("./Cairo-SemiBold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Cairo";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("./Cairo-Bold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Cairo";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("./Cairo-Black.ttf") format("truetype");
+}

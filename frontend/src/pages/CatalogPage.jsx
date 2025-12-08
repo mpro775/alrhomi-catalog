@@ -129,7 +129,7 @@ export default function CatalogPage() {
       >
         <Container maxWidth="xl">
           <Stack spacing={2.5} alignItems="center" textAlign="center">
-            <Typography variant={isMdUp ? "h3" : "h4"} sx={{ fontFamily: "'Cairo', sans-serif" }}>
+            <Typography variant={isMdUp ? "h3" : "h4"} sx={{ fontFamily: "'Cairo', 'Segoe UI', 'Tahoma', 'Arial', sans-serif" }}>
               كتالوج المنتجات
             </Typography>
             <Typography

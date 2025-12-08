@@ -14,7 +14,7 @@ const theme = createTheme({
     // بقية التعريفات...
   },
   typography: {
-    fontFamily: "'Cairo', sans-serif",
+    fontFamily: "'Cairo', 'Segoe UI', 'Tahoma', 'Arial', sans-serif",
   },
 });
 

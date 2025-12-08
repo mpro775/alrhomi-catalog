@@ -1,11 +1,11 @@
 html {
   direction: rtl;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Cairo', 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
 }
 
 body {
   direction: rtl;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Cairo', 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -13,9 +13,9 @@ body {
 
 #root {
   direction: rtl;
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Cairo', 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
 }
 
 * {
-  font-family: 'Cairo', sans-serif;
+  font-family: 'Cairo', 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
 }

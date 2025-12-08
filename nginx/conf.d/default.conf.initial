@@ -1,0 +1,30 @@
+# Initial configuration WITHOUT SSL (for getting Let's Encrypt certificates)
+# Rename this to default.conf before first deployment
+# After getting SSL certificates, use the full default.conf
+
+# HTTP server for Let's Encrypt challenge and initial setup
+server {
+    listen 80;
+    server_name m-dowaid.pro api.m-dowaid.pro;
+
+    # Let's Encrypt challenge
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    # Frontend - m-dowaid.pro
+    location / {
+        if ($host = m-dowaid.pro) {
+            proxy_pass http://frontend:80;
+        }
+        if ($host = api.m-dowaid.pro) {
+            proxy_pass http://backend:5000;
+        }
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+

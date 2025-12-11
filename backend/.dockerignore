@@ -57,6 +57,5 @@ docker-compose*.yml
 *.ps1
 *.sh
 
-# Assets (if not needed in container)
-assets
+
 

@@ -102,6 +102,18 @@ export class ImagesController {
     return this.imagesService.findAll(queryDto);
   }
 
+  @Get('queue/status')
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @ApiOperation({ summary: 'الحصول على حالة طابور المعالجة' })
+  @ApiResponse({
+    status: 200,
+    description: 'حالة الطابور',
+  })
+  async getQueueStatus() {
+    return this.imagesService.getQueueStatus();
+  }
+
   @Get(':id/download-url')
   @ApiOperation({ summary: 'الحصول على رابط التحميل المؤقت' })
   @ApiResponse({

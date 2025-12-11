@@ -244,6 +244,44 @@ export class ImagesService {
     return { url: presignedUrl };
   }
 
+  async getQueueStatus() {
+    try {
+      const counts = await this.imageQueue.getJobCounts();
+      const waitingJobs = await this.imageQueue.getJobs(['waiting'], 0, 10);
+      const activeJobs = await this.imageQueue.getJobs(['active'], 0, 10);
+      const completedJobs = await this.imageQueue.getJobs(['completed'], 0, 10);
+      const failedJobs = await this.imageQueue.getJobs(['failed'], 0, 10);
+
+      return {
+        counts,
+        waiting: waitingJobs.map((job) => ({
+          id: job.id,
+          data: job.data,
+          progress: job.progress,
+        })),
+        active: activeJobs.map((job) => ({
+          id: job.id,
+          data: job.data,
+          progress: job.progress,
+        })),
+        completed: completedJobs.map((job) => ({
+          id: job.id,
+          data: job.data,
+          progress: job.progress,
+        })),
+        failed: failedJobs.map((job) => ({
+          id: job.id,
+          data: job.data,
+          progress: job.progress,
+          failedReason: job.failedReason,
+        })),
+      };
+    } catch (error) {
+      console.error('Error getting queue status:', error);
+      throw error;
+    }
+  }
+
   async toggleWatermark(id: string) {
     const img = await this.imageModel.findById(id).populate('product').exec();
 

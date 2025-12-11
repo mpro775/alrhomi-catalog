@@ -30,7 +30,34 @@ export class ImagesService {
     @InjectQueue('image-processing')
     private imageQueue: Queue,
     private storageService: StorageService,
-  ) {}
+  ) {
+    // Setup queue event listeners for debugging
+    this.imageQueue.on('ready', () => {
+      console.log(`[${new Date().toISOString()}] Queue "image-processing" is ready`);
+    });
+
+    this.imageQueue.on('error', (error) => {
+      console.error(`[${new Date().toISOString()}] Queue "image-processing" error:`, error);
+    });
+
+    this.imageQueue.on('waiting', (jobId) => {
+      console.log(`[${new Date().toISOString()}] Job ${jobId} is waiting`);
+    });
+
+    this.imageQueue.on('active', (job) => {
+      console.log(`[${new Date().toISOString()}] Job ${job.id} is now active`);
+    });
+
+    this.imageQueue.on('completed', (job) => {
+      console.log(`[${new Date().toISOString()}] Job ${job.id} completed`);
+    });
+
+    this.imageQueue.on('failed', (job, err) => {
+      console.error(`[${new Date().toISOString()}] Job ${job.id} failed:`, err.message);
+    });
+
+    console.log(`[${new Date().toISOString()}] ImagesService initialized with queue listeners`);
+  }
 
   async upload(file: Express.Multer.File, uploadDto: UploadImageDto) {
     const { productId } = uploadDto;
@@ -83,6 +110,8 @@ export class ImagesService {
       const imageId =
         imageDoc._id instanceof Types.ObjectId ? imageDoc._id.toHexString() : String(imageDoc._id);
 
+      console.log(`[${new Date().toISOString()}] Adding job to queue for image ${imageId}, s3Key: ${s3Key}`);
+      
       const job = await this.imageQueue.add({
         metadata: {
           _id: imageId,
@@ -90,6 +119,12 @@ export class ImagesService {
           s3Key,
         },
       });
+
+      console.log(`[${new Date().toISOString()}] Job added successfully. Job ID: ${job.id}, Image ID: ${imageId}`);
+      
+      // Check queue status
+      const counts = await this.imageQueue.getJobCounts();
+      console.log(`[${new Date().toISOString()}] Queue status after adding job:`, counts);
 
       imageDoc.jobId = job.id.toString();
       await imageDoc.save();

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Logger, OnModuleInit } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BullModule } from '@nestjs/bull';
 import { ImagesController } from './images.controller';
@@ -28,4 +28,12 @@ import { StorageModule } from '../storage/storage.module';
   providers: [ImagesService, WatermarkProcessor],
   exports: [ImagesService],
 })
-export class ImagesModule {}
+export class ImagesModule implements OnModuleInit {
+  private readonly logger = new Logger(ImagesModule.name);
+
+  onModuleInit() {
+    this.logger.log('🚀 ImagesModule initialized');
+    this.logger.log('✅ WatermarkProcessor registered');
+    this.logger.log('✅ Bull queue "image-processing" registered in ImagesModule');
+  }
+}

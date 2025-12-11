@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Logger, OnModuleInit } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
@@ -9,7 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const redisConfig = configService.get('redis');
-        return {
+        const config = {
           redis: {
             host: redisConfig.host,
             port: redisConfig.port,
@@ -18,6 +18,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             ...(redisConfig.tls && { tls: redisConfig.tls }),
           },
         };
+        console.log(`[${new Date().toISOString()}] QueueModule: Bull Redis config:`, {
+          host: redisConfig.host,
+          port: redisConfig.port,
+          hasPassword: !!redisConfig.password,
+        });
+        return config;
       },
     }),
     BullModule.registerQueue({
@@ -26,4 +32,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   ],
   exports: [BullModule],
 })
-export class QueueModule {}
+export class QueueModule implements OnModuleInit {
+  private readonly logger = new Logger(QueueModule.name);
+
+  onModuleInit() {
+    this.logger.log('🚀 QueueModule initialized');
+    this.logger.log('✅ Bull queue "image-processing" registered');
+  }
+}

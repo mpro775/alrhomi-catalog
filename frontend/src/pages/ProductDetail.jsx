@@ -65,6 +65,25 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (!product?._id) return;
+    
+    // If product has manually selected similar products, use them
+    if (product.similarProducts && product.similarProducts.length > 0) {
+      // Transform similar products to match ImageGrid expected format
+      const transformedSimilarProducts = product.similarProducts.map((p) => ({
+        _id: p._id,
+        productName: p.productName,
+        productCode: p.productCode,
+        category: p.category,
+        model: p.model,
+        originalUrl: p.originalUrl,
+        watermarkedUrl: p.watermarkedUrl,
+      }));
+      setRelated(transformedSimilarProducts);
+      setRelatedLoading(false);
+      return;
+    }
+
+    // Otherwise, fetch automatic related products
     (async () => {
       setRelatedLoading(true);
       try {
@@ -77,7 +96,7 @@ export default function ProductDetail() {
         setRelatedLoading(false);
       }
     })();
-  }, [product?._id]);
+  }, [product?._id, product?.similarProducts]);
 
   // إضافة البيانات المنظمة للمنتج
   useEffect(() => {

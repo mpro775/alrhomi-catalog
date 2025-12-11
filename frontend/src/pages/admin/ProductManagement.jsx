@@ -38,6 +38,7 @@ import {
   PhotoLibrary as PhotoLibraryIcon,
   CheckCircle as CheckCircleIcon,
   Image as ImageIcon,
+  Link as LinkIcon,
 } from "@mui/icons-material";
 import {
   fetchProducts,
@@ -95,6 +96,21 @@ export default function ProductManagement() {
     id: null,
     name: "",
     loading: false,
+  });
+
+  // Similar products state
+  const [selectedSimilarProducts, setSelectedSimilarProducts] = useState([]);
+  const [selectedSimilarProductsLoading, setSelectedSimilarProductsLoading] = useState(false);
+  const [similarProductsDialogOpen, setSimilarProductsDialogOpen] = useState(false);
+  const [productsLibrary, setProductsLibrary] = useState({
+    items: [],
+    loading: false,
+    total: 0,
+  });
+  const [productsLibraryQuery, setProductsLibraryQuery] = useState({
+    page: 0,
+    rowsPerPage: 6,
+    search: "",
   });
 
   const loadProducts = useCallback(async () => {
@@ -166,6 +182,16 @@ export default function ProductManagement() {
     [selectedImages]
   );
 
+  const selectedSimilarProductIds = useMemo(
+    () => selectedSimilarProducts.map((product) => product._id),
+    [selectedSimilarProducts]
+  );
+
+  const selectedSimilarProductIdSet = useMemo(
+    () => new Set(selectedSimilarProducts.map((product) => product._id)),
+    [selectedSimilarProducts]
+  );
+
   const loadImageLibrary = useCallback(async () => {
     if (!imageDialogOpen) return;
     setImageLibrary((prev) => ({ ...prev, loading: true }));
@@ -227,6 +253,71 @@ export default function ProductManagement() {
     }
   }, []);
 
+  // Load products library for similar products dialog
+  const loadProductsLibrary = useCallback(async () => {
+    if (!similarProductsDialogOpen) return;
+    setProductsLibrary((prev) => ({ ...prev, loading: true }));
+    try {
+      const res = await fetchProducts({
+        page: productsLibraryQuery.page + 1,
+        limit: productsLibraryQuery.rowsPerPage,
+        q: productsLibraryQuery.search || undefined,
+      });
+      const { items, totalItems } = res.data;
+      setProductsLibrary((prev) => ({
+        ...prev,
+        items,
+        total: totalItems,
+      }));
+    } catch (err) {
+      console.error("Failed to load products", err);
+    } finally {
+      setProductsLibrary((prev) => ({ ...prev, loading: false }));
+    }
+  }, [similarProductsDialogOpen, productsLibraryQuery]);
+
+  useEffect(() => {
+    loadProductsLibrary();
+  }, [loadProductsLibrary]);
+
+  // Fetch similar products metadata when editing
+  const fetchSelectedSimilarProductsMeta = useCallback(async (ids) => {
+    if (!ids || ids.length === 0) {
+      setSelectedSimilarProducts([]);
+      return;
+    }
+    setSelectedSimilarProductsLoading(true);
+    try {
+      // Fetch each product individually since we don't have a bulk endpoint
+      const results = await Promise.all(
+        ids.map(async (id) => {
+          try {
+            const res = await fetchProducts({ page: 1, limit: 1000 });
+            const found = res.data.items?.find((p) => p._id === id);
+            return found || { _id: id, productName: "منتج غير موجود" };
+          } catch {
+            return { _id: id, productName: "منتج غير موجود" };
+          }
+        })
+      );
+      // Filter unique and valid products
+      const uniqueResults = [];
+      const seenIds = new Set();
+      for (const p of results) {
+        if (!seenIds.has(p._id)) {
+          seenIds.add(p._id);
+          uniqueResults.push(p);
+        }
+      }
+      setSelectedSimilarProducts(uniqueResults);
+    } catch (err) {
+      console.error("Failed to load similar products", err);
+      setSelectedSimilarProducts(ids.map((id) => ({ _id: id, productName: "منتج غير موجود" })));
+    } finally {
+      setSelectedSimilarProductsLoading(false);
+    }
+  }, []);
+
   const handleFormChange = (key) => (event) => {
     const value = event.target.value;
     setForm((prev) => {
@@ -278,6 +369,49 @@ export default function ProductManagement() {
 
   const handleRemoveSelectedImage = (id) => {
     setSelectedImages((prev) => prev.filter((img) => img._id !== id));
+  };
+
+  // Similar products dialog handlers
+  const openSimilarProductsDialog = () => {
+    setSimilarProductsDialogOpen(true);
+  };
+
+  const closeSimilarProductsDialog = () => {
+    setSimilarProductsDialogOpen(false);
+  };
+
+  const handleProductsSearchChange = (event) => {
+    const value = event.target.value;
+    setProductsLibraryQuery((prev) => ({ ...prev, search: value, page: 0 }));
+  };
+
+  const handleProductsPageChange = (_, newPage) => {
+    setProductsLibraryQuery((prev) => ({ ...prev, page: newPage }));
+  };
+
+  const handleProductsRowsChange = (event) => {
+    setProductsLibraryQuery((prev) => ({
+      ...prev,
+      rowsPerPage: parseInt(event.target.value, 10),
+      page: 0,
+    }));
+  };
+
+  const toggleSimilarProductSelection = (product) => {
+    // Don't allow selecting the current product being edited
+    if (editingProduct && product._id === editingProduct._id) return;
+    
+    setSelectedSimilarProducts((prev) => {
+      const exists = prev.find((p) => p._id === product._id);
+      if (exists) {
+        return prev.filter((p) => p._id !== product._id);
+      }
+      return [...prev, product];
+    });
+  };
+
+  const handleRemoveSelectedSimilarProduct = (id) => {
+    setSelectedSimilarProducts((prev) => prev.filter((p) => p._id !== id));
   };
 
   const handleAddVariant = () => {
@@ -378,6 +512,7 @@ export default function ProductManagement() {
     setForm(getDefaultForm());
     setTagInput("");
     setSelectedImages([]);
+    setSelectedSimilarProducts([]);
     setEditingProduct(null);
     setError("");
   };
@@ -397,6 +532,7 @@ export default function ProductManagement() {
       )?._id || "";
 
     const imageIds = Array.isArray(product.imageIds) ? product.imageIds : [];
+    const similarProductIds = Array.isArray(product.similarProductIds) ? product.similarProductIds : [];
 
     setForm({
       productName: product.productName || "",
@@ -419,6 +555,7 @@ export default function ProductManagement() {
     });
     setTagInput("");
     fetchSelectedImagesMeta(imageIds);
+    fetchSelectedSimilarProductsMeta(similarProductIds);
   };
 
   const handleOpen = (product = null) => {
@@ -455,6 +592,7 @@ export default function ProductManagement() {
       tags: tagsArray,
       variants: variantsPayload,
       imageIds: selectedImageIds,
+      similarProductIds: selectedSimilarProductIds,
     };
   };
 
@@ -1139,6 +1277,114 @@ export default function ProductManagement() {
                 )}
               </Box>
 
+              {/* Similar Products Section */}
+              <Box
+                sx={{
+                  border: `1px solid ${theme.palette.divider}`,
+                  borderRadius: 2,
+                  p: 2,
+                  mb: 2,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" },
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    justifyContent: "space-between",
+                    gap: 2,
+                    mb: 2,
+                  }}
+                >
+                  <Box>
+                    <Typography variant="subtitle1">
+                      المنتجات المشابهة
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      اختر منتجات مشابهة لعرضها في صفحة تفاصيل هذا المنتج
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                    <Button
+                      variant="outlined"
+                      startIcon={<LinkIcon />}
+                      onClick={openSimilarProductsDialog}
+                      sx={{ borderRadius: 3 }}
+                    >
+                      اختيار منتجات
+                    </Button>
+                  </Box>
+                </Box>
+
+                {selectedSimilarProductsLoading ? (
+                  <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    <CircularProgress size={24} />
+                    <Typography>جاري تحميل المنتجات المشابهة...</Typography>
+                  </Box>
+                ) : selectedSimilarProducts.length === 0 ? (
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      p: 3,
+                      textAlign: "center",
+                      borderStyle: "dashed",
+                      color: "text.secondary",
+                    }}
+                  >
+                    <LinkIcon sx={{ mb: 1 }} />
+                    <Typography>لا توجد منتجات مشابهة محددة.</Typography>
+                    <Typography variant="body2">استخدم زر "اختيار منتجات" أعلاه.</Typography>
+                  </Paper>
+                ) : (
+                  <Grid container spacing={2}>
+                    {selectedSimilarProducts.map((product) => (
+                      <Grid size={{ xs: 12, sm: 6, md: 4 }} key={product._id}>
+                        <Card
+                          sx={{
+                            borderRadius: 3,
+                            height: "100%",
+                            display: "flex",
+                            flexDirection: "column",
+                          }}
+                        >
+                          <Box sx={{ p: 2, flexGrow: 1 }}>
+                            <Typography fontWeight="medium">
+                              {product.productName || "منتج بدون اسم"}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              {product.productCode || product._id}
+                            </Typography>
+                            {product.category && (
+                              <Chip
+                                label={product.category}
+                                size="small"
+                                sx={{ mt: 1 }}
+                              />
+                            )}
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              px: 2,
+                              pb: 2,
+                            }}
+                          >
+                            <Button
+                              size="small"
+                              color="error"
+                              onClick={() => handleRemoveSelectedSimilarProduct(product._id)}
+                            >
+                              إزالة
+                            </Button>
+                          </Box>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                )}
+              </Box>
+
               <TextField
                 label="الوصف"
                 value={form.description}
@@ -1510,6 +1756,165 @@ export default function ProductManagement() {
             disabled={deleteDialog.loading}
           >
             حذف
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Similar Products Dialog */}
+      <Dialog
+        open={similarProductsDialogOpen}
+        onClose={closeSimilarProductsDialog}
+        fullWidth
+        maxWidth="lg"
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            borderBottom: `1px solid ${theme.palette.divider}`,
+          }}
+        >
+          <Typography variant="h6">
+            اختيار المنتجات المشابهة
+          </Typography>
+          <IconButton onClick={closeSimilarProductsDialog}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid size={{ xs: 12 }}>
+              <TextField
+                fullWidth
+                placeholder="ابحث باسم المنتج أو الكود..."
+                value={productsLibraryQuery.search}
+                onChange={handleProductsSearchChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+          </Grid>
+
+          {productsLibrary.loading && productsLibrary.items.length === 0 ? (
+            <Grid container spacing={2}>
+              {Array.from({ length: productsLibraryQuery.rowsPerPage }).map((_, idx) => (
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={idx}>
+                  <Skeleton variant="rectangular" height={120} sx={{ borderRadius: 3 }} />
+                </Grid>
+              ))}
+            </Grid>
+          ) : productsLibrary.items.length === 0 ? (
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 4,
+                textAlign: "center",
+                borderStyle: "dashed",
+                color: "text.secondary",
+              }}
+            >
+              <InventoryIcon sx={{ fontSize: 48, mb: 1 }} />
+              <Typography variant="h6">
+                لا توجد منتجات مطابقة
+              </Typography>
+              <Typography variant="body2">
+                جرّب تعديل شروط البحث.
+              </Typography>
+            </Paper>
+          ) : (
+            <Grid container spacing={2}>
+              {productsLibrary.items.map((product) => {
+                const isSelected = selectedSimilarProductIdSet.has(product._id);
+                const isCurrentProduct = editingProduct && product._id === editingProduct._id;
+                const isSelectable = !isCurrentProduct;
+                return (
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={product._id}>
+                    <Card
+                      onClick={() => {
+                        if (!isSelectable) return;
+                        toggleSimilarProductSelection(product);
+                      }}
+                      sx={{
+                        borderRadius: 3,
+                        cursor: isSelectable ? "pointer" : "not-allowed",
+                        opacity: isSelectable ? 1 : 0.55,
+                        position: "relative",
+                        border: isSelected ? `2px solid ${theme.palette.primary.main}` : undefined,
+                      }}
+                    >
+                      <Box sx={{ p: 2 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography fontWeight="medium">
+                              {product.productName || "منتج بدون اسم"}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                              {product.productCode}
+                            </Typography>
+                            {product.category && (
+                              <Chip
+                                label={product.category}
+                                size="small"
+                                variant="outlined"
+                              />
+                            )}
+                          </Box>
+                          {isSelected && (
+                            <CheckCircleIcon
+                              color="primary"
+                              sx={{ ml: 1 }}
+                            />
+                          )}
+                        </Box>
+                        {isCurrentProduct && (
+                          <Chip
+                            label="المنتج الحالي"
+                            color="warning"
+                            size="small"
+                            sx={{ mt: 1 }}
+                          />
+                        )}
+                      </Box>
+                    </Card>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          )}
+
+          <TablePagination
+            component="div"
+            count={productsLibrary.total}
+            page={productsLibraryQuery.page}
+            onPageChange={handleProductsPageChange}
+            rowsPerPage={productsLibraryQuery.rowsPerPage}
+            onRowsPerPageChange={handleProductsRowsChange}
+            rowsPerPageOptions={[6, 12, 24]}
+            labelRowsPerPage="منتجات لكل صفحة"
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} من ${count}`}
+            sx={{ mt: 2 }}
+          />
+        </DialogContent>
+        <DialogActions
+          sx={{
+            borderTop: `1px solid ${theme.palette.divider}`,
+            py: 2,
+            px: 3,
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+          }}
+        >
+          <Typography variant="body2" color="text.secondary">
+            تم اختيار {selectedSimilarProducts.length} {selectedSimilarProducts.length === 1 ? "منتج" : "منتجات"} مشابهة.
+          </Typography>
+          <Button onClick={closeSimilarProductsDialog} sx={{ borderRadius: 3 }}>
+            تم
           </Button>
         </DialogActions>
       </Dialog>

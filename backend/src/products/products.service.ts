@@ -71,6 +71,43 @@ export class ProductsService {
     return objectIds;
   }
 
+  private async prepareSimilarProductIds(
+    similarProductIds: string[],
+    currentProductId?: string,
+  ): Promise<Types.ObjectId[]> {
+    const uniqueIds = Array.from(new Set(similarProductIds));
+    if (uniqueIds.length === 0) {
+      return [];
+    }
+
+    // Filter out the current product if it's in the list
+    const filteredIds = currentProductId
+      ? uniqueIds.filter((id) => id !== currentProductId)
+      : uniqueIds;
+
+    const objectIds = filteredIds.map((id) => {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('أحد معرّفات المنتجات المشابهة غير صالح');
+      }
+      return new Types.ObjectId(id);
+    });
+
+    if (objectIds.length === 0) {
+      return [];
+    }
+
+    // Verify all products exist
+    const existingCount = await this.productModel
+      .countDocuments({ _id: { $in: objectIds } })
+      .exec();
+
+    if (existingCount !== objectIds.length) {
+      throw new NotFoundException('أحد المنتجات المشابهة غير موجودة');
+    }
+
+    return objectIds;
+  }
+
   async findAll(queryDto: ProductQueryDto) {
     const { page = 1, limit = 24, q, category, model, productCode } = queryDto;
 
@@ -113,6 +150,9 @@ export class ProductsService {
         const imageIds = Array.isArray(product.images)
           ? product.images.map((imgId) => imgId.toString())
           : [];
+        const similarProductIds = Array.isArray(product.similarProducts)
+          ? product.similarProducts.map((id) => id.toString())
+          : [];
         const imageCount =
           imageIds.length > 0
             ? imageIds.length
@@ -130,6 +170,7 @@ export class ProductsService {
           note: product.note,
           description: product.description,
           imageIds,
+          similarProductIds,
           imageCount,
           createdAt: product.get('createdAt') as Date,
           updatedAt: product.get('updatedAt') as Date,
@@ -166,6 +207,9 @@ export class ProductsService {
     const imageIds = Array.isArray(product.images)
       ? product.images.map((imgId) => imgId.toString())
       : [];
+    const similarProductIds = Array.isArray(product.similarProducts)
+      ? product.similarProducts.map((id) => id.toString())
+      : [];
 
     return {
       _id: product._id,
@@ -180,6 +224,7 @@ export class ProductsService {
       description: product.description,
       images,
       imageIds,
+      similarProductIds,
       imageCount: images.length,
       createdAt: product.get('createdAt') as Date,
       updatedAt: product.get('updatedAt') as Date,
@@ -220,7 +265,10 @@ export class ProductsService {
       .exec();
 
     const productIds = products.map((p) => p._id);
-    const productImagesMap = new Map<string, { _id: Types.ObjectId; originalUrl: string; watermarkedUrl: string; isWatermarked: boolean }>();
+    const productImagesMap = new Map<
+      string,
+      { _id: Types.ObjectId; originalUrl: string; watermarkedUrl: string; isWatermarked: boolean }
+    >();
 
     if (productIds.length > 0) {
       const images = await this.imageModel
@@ -251,7 +299,8 @@ export class ProductsService {
     const items = products.map((product) => {
       const categoryName = extractCategoryName(product.category);
       const subcategoryName = extractCategoryName(product.subcategory);
-      const productId = product._id instanceof Types.ObjectId ? product._id.toString() : String(product._id);
+      const productId =
+        product._id instanceof Types.ObjectId ? product._id.toString() : String(product._id);
       const firstImage = productImagesMap.get(productId);
 
       return {
@@ -302,6 +351,65 @@ export class ProductsService {
       ? product.images.map((imgId) => imgId.toString())
       : [];
 
+    // Get similar products with their details
+    let similarProducts: {
+      _id: Types.ObjectId;
+      productName: string;
+      productCode: string;
+      category: string | undefined;
+      model: string | undefined;
+      originalUrl: string | null;
+      watermarkedUrl: string | null;
+    }[] = [];
+
+    if (Array.isArray(product.similarProducts) && product.similarProducts.length > 0) {
+      const similarProductsDocs = await this.productModel
+        .find({ _id: { $in: product.similarProducts } })
+        .populate('category', 'name')
+        .exec();
+
+      const similarProductIds = similarProductsDocs.map((p) => p._id);
+      const similarImagesMap = new Map<string, { originalUrl: string; watermarkedUrl: string }>();
+
+      if (similarProductIds.length > 0) {
+        const similarImages = await this.imageModel
+          .aggregate([
+            { $match: { product: { $in: similarProductIds } } },
+            { $sort: { createdAt: -1 } },
+            {
+              $group: {
+                _id: '$product',
+                firstImage: { $first: '$$ROOT' },
+              },
+            },
+          ])
+          .exec();
+
+        similarImages.forEach((item) => {
+          if (item.firstImage) {
+            similarImagesMap.set(item._id.toString(), {
+              originalUrl: item.firstImage.originalUrl,
+              watermarkedUrl: item.firstImage.watermarkedUrl,
+            });
+          }
+        });
+      }
+
+      similarProducts = similarProductsDocs.map((p) => {
+        const pId = p._id instanceof Types.ObjectId ? p._id.toString() : String(p._id);
+        const img = similarImagesMap.get(pId);
+        return {
+          _id: p._id as Types.ObjectId,
+          productName: p.productName,
+          productCode: p.productCode,
+          category: extractCategoryName(p.category),
+          model: p.model,
+          originalUrl: img?.watermarkedUrl || img?.originalUrl || null,
+          watermarkedUrl: img?.watermarkedUrl || null,
+        };
+      });
+    }
+
     return {
       _id: product._id,
       category: categoryName,
@@ -315,6 +423,7 @@ export class ProductsService {
       description: product.description,
       images,
       imageIds,
+      similarProducts,
       imageCount: images.length,
       createdAt: product.get('createdAt') as Date,
       updatedAt: product.get('updatedAt') as Date,
@@ -333,6 +442,7 @@ export class ProductsService {
       note,
       description,
       imageIds,
+      similarProductIds,
     } = createProductDto;
 
     // Validate ObjectIds
@@ -344,6 +454,9 @@ export class ProductsService {
     }
 
     const normalizedImageIds = imageIds ? await this.prepareImageIds(imageIds) : [];
+    const normalizedSimilarProductIds = similarProductIds
+      ? await this.prepareSimilarProductIds(similarProductIds)
+      : [];
 
     try {
       const product = await this.productModel.create({
@@ -357,6 +470,7 @@ export class ProductsService {
         note: note || null,
         description: description || null,
         images: normalizedImageIds,
+        similarProducts: normalizedSimilarProductIds,
       });
 
       if (normalizedImageIds.length > 0) {
@@ -393,6 +507,7 @@ export class ProductsService {
       note,
       description,
       imageIds,
+      similarProductIds,
     } = updateProductDto;
 
     // Validate ObjectIds if provided
@@ -415,6 +530,7 @@ export class ProductsService {
       note?: string | null;
       description?: string | null;
       images?: Types.ObjectId[];
+      similarProducts?: Types.ObjectId[];
     } = {};
     if (productCode !== undefined) updateData.productCode = productCode;
     if (category !== undefined) updateData.category = new Types.ObjectId(category);
@@ -435,6 +551,14 @@ export class ProductsService {
     if (imageIds !== undefined) {
       normalizedImageIds = await this.prepareImageIds(imageIds, id);
       updateData.images = normalizedImageIds;
+    }
+
+    if (similarProductIds !== undefined) {
+      const normalizedSimilarProductIds = await this.prepareSimilarProductIds(
+        similarProductIds,
+        id,
+      );
+      updateData.similarProducts = normalizedSimilarProductIds;
     }
 
     try {

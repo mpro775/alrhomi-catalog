@@ -118,4 +118,14 @@ export class UpdateProductDto {
   @IsMongoId({ each: true, message: 'أحد معرّفات الصور غير صالح' })
   @IsOptional()
   imageIds?: string[];
+
+  @ApiProperty({
+    description: 'معرّفات المنتجات المشابهة (يتم استبدال القائمة الحالية)',
+    required: false,
+    type: [String],
+  })
+  @IsArray()
+  @IsMongoId({ each: true, message: 'أحد معرّفات المنتجات المشابهة غير صالح' })
+  @IsOptional()
+  similarProductIds?: string[];
 }

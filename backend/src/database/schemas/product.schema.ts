@@ -58,6 +58,13 @@ export class Product {
     default: [],
   })
   images: MongooseSchema.Types.ObjectId[];
+
+  @Prop({
+    type: [MongooseSchema.Types.ObjectId],
+    ref: 'Product',
+    default: [],
+  })
+  similarProducts: MongooseSchema.Types.ObjectId[];
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

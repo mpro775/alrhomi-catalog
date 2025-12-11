@@ -128,4 +128,15 @@ export class CreateProductDto {
   @IsMongoId({ each: true, message: 'أحد معرّفات الصور غير صالح' })
   @IsOptional()
   imageIds?: string[];
+
+  @ApiProperty({
+    description: 'معرّفات المنتجات المشابهة',
+    example: ['665f1f77bcf86cd799439099', '665f1f77bcf86cd79943909a'],
+    required: false,
+    type: [String],
+  })
+  @IsArray()
+  @IsMongoId({ each: true, message: 'أحد معرّفات المنتجات المشابهة غير صالح' })
+  @IsOptional()
+  similarProductIds?: string[];
 }

@@ -3,15 +3,7 @@ import { useMemo, FC, ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowBackRounded, GridViewRounded } from "@mui/icons-material";
 import { onImageError } from "../utils/fallbackImage";
-
-interface Category {
-  _id: string;
-  name: string;
-  description?: string;
-  image?: string;
-  parent?: string | { name: string };
-  itemsCount?: number;
-}
+import { Category } from "../types/models.types";
 
 interface CategoryShowcaseProps {
   categories?: Category[];

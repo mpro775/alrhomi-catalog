@@ -17,16 +17,7 @@ import AboutContactSection from "../components/AboutContactSection";
 import SEO from "../components/SEO";
 import PageTransition from "../components/PageTransition";
 import { getWhatsAppUrl } from "../utils/whatsapp";
-
-interface Category {
-  _id: string;
-  name: string;
-  description?: string;
-  image?: string;
-  parent?: string | { name: string };
-  itemsCount?: number;
-  [key: string]: unknown;
-}
+import { Category } from "../types/models.types";
 
 interface ProductItem {
   _id: string;

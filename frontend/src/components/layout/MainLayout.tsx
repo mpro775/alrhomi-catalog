@@ -22,8 +22,8 @@ const MainLayout: FC = (): ReactElement => {
       <WhatsAppCTA
         id="catalog-whatsapp-cta"
         context="paged-footer"
-        title="تواصل مباشرة مع فريق مبيعات الرحومي"
-        subtitle="نساعدك في اختيار الحل المثالي ونرسل لك عروض الأسعار عبر واتساب خلال دقائق."
+        title="تواصل مباشرة مع فريق المرحومي"
+        subtitle="نساعدك في اختيار ما يناسب مطبخك وضيافتك، ونجيب على كل استفساراتك عبر واتساب خلال دقائق."
       />
       <SiteFooter />
     </Box>

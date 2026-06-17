@@ -11,7 +11,7 @@ interface SearchBarProps {
   sx?: SxProps<Theme>;
 }
 
-type SearchBarComponentProps = SearchBarProps & Omit<TextFieldProps, 'onChange' | 'value' | 'placeholder'>;
+type SearchBarComponentProps = SearchBarProps & Omit<TextFieldProps, "onChange" | "value" | "placeholder">;
 
 const SearchBar: FC<SearchBarComponentProps> = ({
   value = "",
@@ -28,6 +28,7 @@ const SearchBar: FC<SearchBarComponentProps> = ({
     debounceRef.current = debounce((v: string) => {
       onSearch(v);
     }, 300);
+
     return () => debounceRef.current?.cancel();
   }, [onSearch]);
 
@@ -55,17 +56,26 @@ const SearchBar: FC<SearchBarComponentProps> = ({
           ),
           endAdornment: inputValue && (
             <InputAdornment position="end">
-              <IconButton onClick={() => { setInputValue(""); onSearch(""); }} size="small">
+              <IconButton
+                onClick={() => {
+                  setInputValue("");
+                  onSearch("");
+                }}
+                size="small"
+              >
                 <Close sx={{ color: theme.palette.text.secondary }} />
               </IconButton>
             </InputAdornment>
           ),
           sx: {
-            px: 3,
+            px: 2,
             py: 1,
             color: theme.palette.text.primary,
             fontSize: "1.2rem",
-            "& input::placeholder": { color: theme.palette.text.secondary, opacity: 0.7 }
+            "& input::placeholder": {
+              color: theme.palette.text.secondary,
+              opacity: 0.7,
+            },
           },
         }}
         {...textFieldProps}

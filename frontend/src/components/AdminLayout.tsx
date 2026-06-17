@@ -124,7 +124,7 @@ const AdminLayout: FC = (): ReactElement => {
           </Avatar>
           {!collapsed && (
             <Typography variant="h6" fontWeight={800} sx={{ letterSpacing: "-0.02em" }}>
-              الرحومي
+              المرحومي
             </Typography>
           )}
         </Box>

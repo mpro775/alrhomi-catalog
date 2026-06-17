@@ -10,7 +10,7 @@ const NotFoundPage: FC = (): ReactElement => {
 
   return (
     <>
-      <SEO title="الصفحة غير موجودة - كتالوج الرحومي" description="عذراً، الصفحة التي تبحث عنها غير موجودة." />
+      <SEO title="الصفحة غير موجودة - كتالوج المرحومي" description="عذراً، الصفحة التي تبحث عنها غير موجودة." />
       <Box
         sx={{
           minHeight: "80vh",

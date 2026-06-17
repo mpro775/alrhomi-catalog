@@ -26,6 +26,7 @@ function App(): JSX.Element {
 
     return (
         <Suspense fallback={<FullPageLoader />}>
+            <div className="app-bg" />
             <RouteProgress />
             <Routes>
                 <Route path="/" element={<MainLayout />}>

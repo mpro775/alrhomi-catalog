@@ -1,14 +1,8 @@
-import {
-  Box,
-  Typography,
-  Grid,
-  Skeleton,
-} from "@mui/material";
+import { Box, Typography, Grid, Skeleton, Stack } from "@mui/material";
 import { useMemo, FC, ReactElement } from "react";
 import { useNavigate } from "react-router-dom";
-import ArrowForwardOutlined from "@mui/icons-material/ArrowForwardOutlined";
-import CategoryOutlined from "@mui/icons-material/CategoryOutlined";
-import { motion } from "framer-motion";
+import { ArrowBackRounded, GridViewRounded } from "@mui/icons-material";
+import { onImageError } from "../utils/fallbackImage";
 
 interface Category {
   _id: string;
@@ -46,121 +40,154 @@ const CategoryShowcase: FC<CategoryShowcaseProps> = ({
     : organizedCategories;
 
   return (
-    <Box>
-      <Grid container spacing={4}>
-        {displayCategories.map((category, idx) => (
-          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={category._id ?? idx}>
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
-              whileHover={{ scale: 1.05 }}
-              style={{ height: "100%" }}
-            >
-              <Box
-                className="glass-card glass"
-                onClick={() => !loading && navigate(`/catalog?category=${category._id}`)}
-                sx={{
-                  height: "100%",
-                  cursor: "pointer",
-                  overflow: "hidden",
-                  display: "flex",
-                  flexDirection: "column",
-                  minHeight: 300,
-                }}
-              >
-                {loading ? (
-                  <Skeleton variant="rectangular" height="100%" sx={{ bgcolor: "rgba(255,255,255,0.05)" }} />
-                ) : (
-                  <>
+    <Grid container spacing={3}>
+      {displayCategories.map((category, idx) => (
+        <Grid size={{ xs: 6, sm: 6, md: 4 }} key={category._id ?? idx}>
+          <Box
+            className={loading ? undefined : "product-card"}
+            onClick={() => !loading && navigate(`/catalog?category=${category._id}`)}
+            sx={{
+              height: "100%",
+              cursor: loading ? "default" : "pointer",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+              bgcolor: "background.paper",
+              border: "1px solid",
+              borderColor: "divider",
+              borderRadius: 3,
+              boxShadow: "var(--shadow-soft)",
+              "&:hover img": { transform: "scale(1.06)" },
+            }}
+          >
+            {loading ? (
+              <>
+                <Skeleton variant="rectangular" height={170} sx={{ bgcolor: "#f1e9dc" }} />
+                <Box sx={{ p: 2.5 }}>
+                  <Skeleton width="60%" height={28} />
+                  <Skeleton width="90%" />
+                </Box>
+              </>
+            ) : (
+              <>
+                <Box
+                  sx={{
+                    position: "relative",
+                    height: { xs: 130, md: 180 },
+                    overflow: "hidden",
+                    bgcolor: "#fbf8f2",
+                  }}
+                >
+                  {category.image ? (
+                    <Box
+                      component="img"
+                      src={category.image}
+                      alt={category.name}
+                      loading="lazy"
+                      onError={onImageError}
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        transition: "transform 0.6s cubic-bezier(0.22,1,0.36,1)",
+                      }}
+                    />
+                  ) : (
                     <Box
                       sx={{
-                        height: 200,
-                        position: "relative",
-                        backgroundImage: category.image ? `url(${category.image})` : 'none',
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        backgroundBlendMode: "overlay",
-                        backgroundColor: "rgba(0,0,0,0.4)",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                       }}
                     >
-                      <Box
-                        sx={{
-                          position: "absolute",
-                          inset: 0,
-                          background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)",
-                        }}
-                      />
-                      <Box
-                        sx={{
-                          position: "absolute",
-                          top: 20,
-                          right: 20,
-                          background: "var(--brand-yellow)",
-                          px: 2,
-                          py: 0.5,
-                          borderRadius: "100px",
-                          boxShadow: "0 4px 15px rgba(244, 196, 0, 0.3)",
-                          color: "var(--brand-charcoal)",
-                        }}
-                      >
-                        <Typography variant="caption" sx={{ fontWeight: 800 }}>
-                          {category.itemsCount ?? 0} قطعة
-                        </Typography>
-                      </Box>
+                      <GridViewRounded sx={{ fontSize: 40, color: "secondary.main", opacity: 0.7 }} />
                     </Box>
-                    <Box sx={{ p: 4, flexGrow: 1 }}>
-                      <Typography variant="h5" sx={{ fontWeight: 800, mb: 1, color: "white" }}>
-                        {category.name}
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: "var(--text-muted)", lineHeight: 1.6 }}>
-                        {category.description || "استكشف أرقى الخيارات في هذه الفئة."}
-                      </Typography>
-                    </Box>
-                  </>
-                )}
-              </Box>
-            </motion.div>
-          </Grid>
-        ))}
+                  )}
 
-        {showMore && !loading && (
-          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              style={{ height: "100%" }}
+                  {typeof category.itemsCount === "number" && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 12,
+                        insetInlineEnd: 12,
+                        bgcolor: "rgba(255,255,255,0.92)",
+                        color: "primary.main",
+                        px: 1.5,
+                        py: 0.3,
+                        borderRadius: 999,
+                        fontWeight: 700,
+                        fontSize: "0.72rem",
+                      }}
+                    >
+                      {category.itemsCount} قطعة
+                    </Box>
+                  )}
+                </Box>
+
+                <Box sx={{ p: { xs: 2, md: 2.5 }, flexGrow: 1 }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 0.5,
+                      fontSize: { xs: "1rem", md: "1.2rem" },
+                    }}
+                  >
+                    {category.name}
+                  </Typography>
+
+                  <Stack direction="row" spacing={0.5} alignItems="center" sx={{ color: "primary.main", mt: 1 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 700 }}>
+                      تصفّح الفئة
+                    </Typography>
+                    <ArrowBackRounded sx={{ fontSize: 15 }} />
+                  </Stack>
+                </Box>
+              </>
+            )}
+          </Box>
+        </Grid>
+      ))}
+
+      {showMore && !loading && (
+        <Grid size={{ xs: 6, sm: 6, md: 4 }}>
+          <Box
+            onClick={onMoreClick}
+            sx={{
+              height: "100%",
+              minHeight: 200,
+              cursor: "pointer",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 1.5,
+              borderRadius: 3,
+              border: "1.5px dashed",
+              borderColor: "secondary.main",
+              bgcolor: "rgba(194,161,77,0.06)",
+              transition: "all 0.25s ease",
+              "&:hover": { bgcolor: "rgba(194,161,77,0.12)" },
+            }}
+          >
+            <GridViewRounded sx={{ fontSize: 40, color: "secondary.main" }} />
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontWeight: 700,
+                color: "primary.main",
+                display: "flex",
+                alignItems: "center",
+                gap: 0.5,
+              }}
             >
-              <Box
-                className="glass-card"
-                onClick={onMoreClick}
-                sx={{
-                  height: "100%",
-                  minHeight: 300,
-                  cursor: "pointer",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  border: "2px dashed rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.02)",
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-borderColor: "var(--brand-blue)",
-                  background: "rgba(36, 69, 143, 0.05)"
-                  }
-                }}
-              >
-                <CategoryOutlined sx={{ fontSize: 48, color: "var(--brand-yellow)", mb: 2 }} />
-                <Typography variant="h6" sx={{ fontWeight: 800, color: "var(--text-main)", display: "flex", alignItems: "center", gap: 1 }}>
-                  عرض جميع الفئات <ArrowForwardOutlined fontSize="small" />
-                </Typography>
-              </Box>
-            </motion.div>
-          </Grid>
-        )}
-      </Grid>
-    </Box>
+              عرض جميع الفئات <ArrowBackRounded fontSize="small" />
+            </Typography>
+          </Box>
+        </Grid>
+      )}
+    </Grid>
   );
 };
 

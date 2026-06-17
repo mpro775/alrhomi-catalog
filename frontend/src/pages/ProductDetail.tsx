@@ -197,16 +197,16 @@ export default function ProductDetail() {
     : `${t('product.details')} - ${t('home.hero_title')}`;
 
   const pageDescription = product
-    ? `تفاصيل ${product.productName || "منتج"} في كتالوج الرحومي${product.category ? ` - فئة ${product.category}` : ""
+    ? `تفاصيل ${product.productName || "منتج"} في كتالوج المرحومي${product.category ? ` - فئة ${product.category}` : ""
     }. منتج عالي الجودة مع صور متعددة.`
-    : "تفاصيل المنتج في كتالوج الرحومي. صور منتجات عالية الجودة.";
+    : "تفاصيل المنتج في كتالوج المرحومي. صور منتجات عالية الجودة.";
 
   return (
     <PageTransition>
       <SEO
         title={pageTitle}
         description={pageDescription}
-        keywords={`${product?.productName || "منتج"}, ${product?.category || "منتجات"}, صور منتجات, كتالوج الرحومي`}
+        keywords={`${product?.productName || "منتج"}, ${product?.category || "منتجات"}, صور منتجات, كتالوج المرحومي`}
         image={product?.images && product.images.length > 0 ? (product.images[0].watermarkedUrl || product.images[0].originalUrl) : "/logo512.png"}
         type="product"
       />
@@ -214,7 +214,7 @@ export default function ProductDetail() {
         {product?.productCode && (
           <meta property="product:retailer_item_id" content={product.productCode} />
         )}
-        <meta property="product:brand" content="الرحومي" />
+        <meta property="product:brand" content="المرحومي" />
         <meta property="product:availability" content="in stock" />
         <meta property="product:condition" content="new" />
       </Helmet>
@@ -364,9 +364,7 @@ export default function ProductDetail() {
                       sx={{
                         mb: 2,
                         fontWeight: 800,
-                        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
+                        color: "primary.main",
                         lineHeight: 1.2,
                       }}
                     >

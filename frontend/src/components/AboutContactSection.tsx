@@ -1,108 +1,108 @@
-import { FC, ReactElement } from "react";
+import { Box, Container, Typography, Grid, Stack, Button } from "@mui/material";
 import {
-  Box,
-  Container,
-  Typography,
-  Grid,
-  Stack,
-  Button,
-  Divider,
-} from "@mui/material";
-import PhoneIcon from "@mui/icons-material/PhoneOutlined";
-import EmailIcon from "@mui/icons-material/EmailOutlined";
-import LocationOnIcon from "@mui/icons-material/LocationOnOutlined";
-import WhatsApp from "@mui/icons-material/WhatsApp";
-import BusinessIcon from "@mui/icons-material/BusinessOutlined";
+  WhatsApp,
+  VerifiedOutlined,
+  Inventory2Outlined,
+  BoltOutlined,
+  PlaceOutlined,
+} from "@mui/icons-material";
+import { FC, ReactElement } from "react";
 import { getWhatsAppUrl } from "../utils/whatsapp";
+
+const highlights = [
+  { icon: <VerifiedOutlined />, title: "جودة عالية", text: "خامات متينة وتشطيبات أنيقة تليق بمائدتك." },
+  { icon: <Inventory2Outlined />, title: "تشكيلة واسعة", text: "من أطقم القهوة والشاي إلى الديكور والمباخر." },
+  { icon: <BoltOutlined />, title: "خدمة سريعة", text: "نرد على طلبك واستفسارك عبر واتساب خلال دقائق." },
+];
 
 const AboutContactSection: FC = (): ReactElement => {
   return (
-    <Box sx={{ py: { xs: 10, md: 15 }, position: "relative" }}>
+    <Box sx={{ py: { xs: 8, md: 12 } }}>
       <Container maxWidth="lg">
-        <Grid container spacing={8} alignItems="center">
-          {/* About Text */}
+        <Grid container spacing={{ xs: 6, md: 8 }} alignItems="center">
+          {/* About */}
           <Grid size={{ xs: 12, md: 6 }}>
-            <Stack spacing={4}>
-              <Box>
-                <Typography variant="overline" sx={{ color: "var(--brand-yellow)", fontWeight: 800, letterSpacing: 2 }}>
-                  تاريخنا العريق
-                </Typography>
-                <Typography variant="h2" sx={{ fontWeight: 800, mt: 1, mb: 3 }}>
-                  أكثر من <span className="text-gradient">65 عاماً</span> من التميز
-                </Typography>
-                <Typography variant="body1" sx={{ color: "var(--text-muted)", lineHeight: 1.8, fontSize: "1.1rem" }}>
-                  بدأت حكايتنا في عام 1955، ومنذ ذلك الحين ونحن نضع معايير الجودة في تجهيز المطاعم والمطابخ المركزية. نحن لا نبيع المعدات فحسب، بل نبني شراكات نجاح تدوم لأجيال.
-                </Typography>
-              </Box>
+            <Stack spacing={3}>
+              <Typography variant="overline" sx={{ color: "secondary.main", fontWeight: 800, letterSpacing: 2 }}>
+                عن المرحومي
+              </Typography>
 
-              <Grid container spacing={3}>
-                <Grid size={{ xs: 6 }}>
-                  <Box className="glass" sx={{ p: 3, textAlign: "center" }}>
-                    <BusinessIcon sx={{ fontSize: 40, color: "var(--brand-yellow)", mb: 1 }} />
-                    <Typography variant="h4" sx={{ fontWeight: 800 }}>+5000</Typography>
-                    <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>مشروع منفذ</Typography>
-                  </Box>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Box className="glass" sx={{ p: 3, textAlign: "center" }}>
-                    <BusinessIcon sx={{ fontSize: 40, color: "var(--brand-blue)", mb: 1 }} />
-                    <Typography variant="h4" sx={{ fontWeight: 800 }}>1955</Typography>
-                    <Typography variant="caption" sx={{ color: "var(--text-muted)" }}>عام التأسيس</Typography>
-                  </Box>
-                </Grid>
+              <Typography variant="h3" sx={{ fontWeight: 700 }}>
+                أناقة الضيافة العربية{" "}
+                <Box component="span" sx={{ color: "primary.main" }}>
+                  في بيتك
+                </Box>
+              </Typography>
+
+              <Typography variant="body1" sx={{ color: "text.secondary", fontSize: "1.08rem" }}>
+                في المرحومي نختار لك أجمل أواني وأدوات المطبخ، أطقم القهوة والشاي، صواني التقديم،
+                المباخر، ومستلزمات الضيافة والمنزل — بجودة عالية وذوق عربي أصيل وأسعار في المتناول، لتكون
+                ضيافتك دائماً على أكمل وجه.
+              </Typography>
+
+              <Grid container spacing={2}>
+                {highlights.map((h) => (
+                  <Grid size={{ xs: 12, sm: 4 }} key={h.title}>
+                    <Box
+                      sx={{
+                        height: "100%",
+                        p: 2.5,
+                        bgcolor: "background.paper",
+                        border: "1px solid",
+                        borderColor: "divider",
+                        borderRadius: 3,
+                        boxShadow: "var(--shadow-soft)",
+                      }}
+                    >
+                      <Box sx={{ color: "secondary.main", mb: 1 }}>{h.icon}</Box>
+                      <Typography sx={{ fontWeight: 700, mb: 0.5 }}>{h.title}</Typography>
+                      <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                        {h.text}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                ))}
               </Grid>
             </Stack>
           </Grid>
 
-          {/* Contact Cards */}
+          {/* Contact */}
           <Grid size={{ xs: 12, md: 6 }}>
-            <Box className="glass" sx={{ p: { xs: 4, md: 6 } }}>
-              <Typography variant="h4" sx={{ fontWeight: 800, mb: 4 }}>تواصل <span style={{ color: "var(--brand-yellow)" }}>معنا</span></Typography>
+            <Box
+              sx={{
+                p: { xs: 4, md: 6 },
+                borderRadius: 4,
+                bgcolor: "primary.main",
+                color: "#fff",
+                boxShadow: "var(--shadow-md)",
+              }}
+            >
+              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1.5, color: "#fff" }}>
+                اطلب واستفسر مباشرة
+              </Typography>
 
-              <Stack spacing={4}>
-                <Stack direction="row" spacing={3} alignItems="center">
-                  <Box sx={{ p: 2, borderRadius: "12px", background: "rgba(36, 69, 143, 0.1)", color: "var(--brand-blue)" }}>
-                    <LocationOnIcon />
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" sx={{ color: "var(--text-muted)", display: "block" }}>المقر الرئيسي</Typography>
-                    <Typography variant="body1" sx={{ fontWeight: 600 }}>جدة، حي الهنداوية - مركز بن شيهون</Typography>
-                  </Box>
-                </Stack>
+              <Typography sx={{ color: "rgba(255,255,255,0.82)", mb: 4, lineHeight: 1.9 }}>
+                اختر ما يعجبك من الكتالوج وراسلنا على واتساب، وسنساعدك في إتمام طلبك بسهولة وسرعة.
+              </Typography>
 
-                <Stack direction="row" spacing={3} alignItems="center">
-                  <Box sx={{ p: 2, borderRadius: "12px", background: "rgba(244, 196, 0, 0.15)", color: "var(--brand-yellow)" }}>
-                    <PhoneIcon />
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" sx={{ color: "var(--text-muted)", display: "block" }}>اتصل بنا</Typography>
-                    <Typography variant="body1" sx={{ fontWeight: 600 }}>012 647 7825</Typography>
-                  </Box>
-                </Stack>
-
-                <Stack direction="row" spacing={3} alignItems="center">
-                  <Box sx={{ p: 2, borderRadius: "12px", background: "rgba(36, 69, 143, 0.1)", color: "var(--brand-blue)" }}>
-                    <EmailIcon />
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" sx={{ color: "var(--text-muted)", display: "block" }}>البريد الإلكتروني</Typography>
-                    <Typography variant="body1" sx={{ fontWeight: 600 }}>almarhomi@almrhomi1955.com</Typography>
-                  </Box>
-                </Stack>
-
-                <Divider sx={{ borderColor: "var(--border-soft)" }} />
-
-                <Button
-                  className="btn-premium"
-                  fullWidth
-                  size="large"
-                  startIcon={<WhatsApp />}
-                  onClick={() => window.open(getWhatsAppUrl(), "_blank")}
-                  sx={{ py: 2 }}
-                >
-                  تواصل عبر واتساب مباشر
-                </Button>
+              <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 4 }}>
+                <PlaceOutlined sx={{ color: "secondary.main" }} />
+                <Typography sx={{ color: "rgba(255,255,255,0.9)", fontWeight: 600 }}>
+                  المملكة العربية السعودية
+                </Typography>
               </Stack>
+
+              <Button
+                fullWidth
+                variant="contained"
+                color="success"
+                size="large"
+                startIcon={<WhatsApp />}
+                onClick={() => window.open(getWhatsAppUrl(), "_blank")}
+                sx={{ py: 1.6, color: "#fff" }}
+              >
+                تواصل عبر واتساب
+              </Button>
             </Box>
           </Grid>
         </Grid>

@@ -7,13 +7,13 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
-import { JSX, useState } from "react";
+import { JSX, useState, MouseEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
+import { ArrowBackRounded } from "@mui/icons-material";
 import DownloadIcon from "@mui/icons-material/Download";
-import { ImageCardProps } from "../types/component.types";
 import { saveAs } from "file-saver";
+import { ImageCardProps } from "../types/component.types";
+import { onImageError } from "../utils/fallbackImage";
 
 export default function ImageCard({
   image,
@@ -23,7 +23,9 @@ export default function ImageCard({
 }: ImageCardProps): JSX.Element {
   const [imgLoaded, setImgLoaded] = useState<boolean>(false);
   const navigate = useNavigate();
+
   const title = image.productName || image.description || "منتج";
+  const src = image.watermarkedUrl || image.originalUrl;
 
   const handleClick = (): void => {
     if (onViewDetails) {
@@ -33,175 +35,172 @@ export default function ImageCard({
     }
   };
 
-  const handleDownload = (e: React.MouseEvent): void => {
+  const handleDownload = (e: MouseEvent<HTMLButtonElement>): void => {
     e.stopPropagation();
+
     const url = image.originalUrl || image.watermarkedUrl;
+
     if (url) {
       saveAs(url, `${title.replace(/\s+/g, "-")}.png`);
     }
   };
 
   return (
-    <motion.div
-      whileHover={{ y: -10 }}
-      transition={{ type: "spring", stiffness: 300 }}
-      style={{ height: "100%" }}
+    <Box
+      className={`${className ?? ""} product-card`}
+      onClick={handleClick}
+      sx={{
+        height: "100%",
+        cursor: "pointer",
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        overflow: "hidden",
+        bgcolor: "background.paper",
+        border: "1px solid",
+        borderColor: "divider",
+        borderRadius: 3,
+        boxShadow: "var(--shadow-soft)",
+        "&:hover img": { transform: "scale(1.06)" },
+      }}
     >
+      {/* Image */}
       <Box
-        className={`${className} glass-card glass`}
-        onClick={handleClick}
         sx={{
-          height: "100%",
-          cursor: "pointer",
-          display: "flex",
-          flexDirection: "column",
           position: "relative",
+          width: "100%",
+          paddingTop: "100%",
+          bgcolor: "#fbf8f2",
           overflow: "hidden",
-          "&:hover .hover-overlay": { opacity: 1 },
-          "&:hover img": { transform: "scale(1.1)" },
-          "&:hover .view-badge": { transform: "translate(-50%, -50%) scale(1)", opacity: 1 }
         }}
       >
-        {/* Image Wrapper */}
-        <Box
-          sx={{
-            position: "relative",
-            width: "100%",
-            paddingTop: "100%",
-            background: "rgba(0,0,0,0.1)",
-            overflow: "hidden"
-          }}
-        >
-          {!imgLoaded && (
-            <Skeleton
-              variant="rectangular"
-              sx={{ position: "absolute", inset: 0, bgcolor: "rgba(255,255,255,0.05)" }}
-            />
-          )}
+        {!imgLoaded && (
+          <Skeleton
+            variant="rectangular"
+            sx={{
+              position: "absolute",
+              inset: 0,
+              bgcolor: "#f1e9dc",
+            }}
+          />
+        )}
+
+        {src ? (
           <Box
             component="img"
-            src={image.watermarkedUrl || image.originalUrl}
+            src={src}
             alt={title}
+            loading="lazy"
             onLoad={() => setImgLoaded(true)}
+            onError={(e) => {
+              setImgLoaded(true);
+              onImageError(e);
+            }}
             sx={{
               position: "absolute",
               inset: 0,
               width: "100%",
               height: "100%",
               objectFit: "contain",
-              p: 3,
+              p: 2.5,
               transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
               opacity: imgLoaded ? 1 : 0,
             }}
           />
-
-          {/* Hover Overlay */}
+        ) : (
           <Box
-            className="hover-overlay"
             sx={{
               position: "absolute",
               inset: 0,
-              background: "linear-gradient(to top, rgba(36, 69, 143, 0.5), transparent)",
-              opacity: 0,
-              transition: "opacity 0.4s ease",
-            }}
-          />
-
-          {/* View Badge */}
-          <Box
-            className="view-badge"
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%) scale(0.5)",
-              opacity: 0,
-              transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
-              background: "rgba(255,255,255,0.1)",
-              backdropFilter: "blur(10px)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              width: 60,
-              height: 60,
-              borderRadius: "50%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              zIndex: 2
+              color: "text.secondary",
+              fontSize: "0.85rem",
             }}
           >
-            <VisibilityOutlined sx={{ color: "white" }} />
+            لا توجد صورة
           </Box>
+        )}
 
-          {/* Category Chip */}
+        {image.category && (
           <Chip
             label={image.category}
             size="small"
             sx={{
               position: "absolute",
-              top: 16,
-              right: 16,
-              background: "rgba(0,0,0,0.5)",
-              backdropFilter: "blur(5px)",
-              color: "white",
-              border: "1px solid rgba(255,255,255,0.1)",
-              fontWeight: 600,
-              zIndex: 3
+              top: 12,
+              insetInlineEnd: 12,
+              bgcolor: "rgba(255,255,255,0.92)",
+              color: "primary.main",
+              border: "1px solid",
+              borderColor: "divider",
+              fontWeight: 700,
+              backdropFilter: "blur(4px)",
             }}
           />
+        )}
 
-          {/* Download Button */}
-          {withDownload && (
-            <Tooltip title="تحميل الصورة">
-              <IconButton
-                size="small"
-                onClick={handleDownload}
-                sx={{
-                  position: "absolute",
-                  top: 16,
-                  left: 16,
-                  background: "rgba(0,0,0,0.5)",
-                  backdropFilter: "blur(5px)",
-                  color: "white",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  zIndex: 3,
-                  "&:hover": {
-                    background: "rgba(36, 69, 143, 0.8)",
-                  },
-                }}
-              >
-                <DownloadIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          )}
-        </Box>
-
-        {/* Content */}
-        <Box sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              fontSize: "1.1rem",
-              lineHeight: 1.4,
-              mb: 2,
-              color: "var(--text-main)",
-              display: "-webkit-box",
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden"
-            }}
-          >
-            {title}
-          </Typography>
-
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Box sx={{ width: 8, height: 8, borderRadius: "50%", background: "var(--brand-yellow)" }} />
-            <Typography variant="caption" sx={{ color: "var(--text-muted)", fontWeight: 500, letterSpacing: 0.5 }}>
-              عرض التفاصيل
-            </Typography>
-          </Stack>
-        </Box>
+        {withDownload && src && (
+          <Tooltip title="تحميل الصورة">
+            <IconButton
+              size="small"
+              onClick={handleDownload}
+              sx={{
+                position: "absolute",
+                top: 12,
+                insetInlineStart: 12,
+                bgcolor: "rgba(255,255,255,0.92)",
+                color: "primary.main",
+                border: "1px solid",
+                borderColor: "divider",
+                backdropFilter: "blur(4px)",
+                zIndex: 2,
+                "&:hover": {
+                  bgcolor: "background.paper",
+                },
+              }}
+            >
+              <DownloadIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
       </Box>
-    </motion.div>
+
+      {/* Content */}
+      <Box
+        sx={{
+          p: 2.5,
+          flexGrow: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          gap: 1.5,
+        }}
+      >
+        <Typography
+          sx={{
+            fontWeight: 700,
+            fontSize: "1.02rem",
+            lineHeight: 1.5,
+            color: "text.primary",
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+            minHeight: "3.06em",
+          }}
+        >
+          {title}
+        </Typography>
+
+        <Stack direction="row" spacing={0.5} alignItems="center" sx={{ color: "primary.main" }}>
+          <Typography variant="caption" sx={{ fontWeight: 700, letterSpacing: 0.3 }}>
+            عرض التفاصيل
+          </Typography>
+          <ArrowBackRounded sx={{ fontSize: 16 }} />
+        </Stack>
+      </Box>
+    </Box>
   );
 }

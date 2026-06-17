@@ -1,28 +1,19 @@
-import {
-  Box,
-  Container,
-  Typography,
-  Stack,
-  Button,
-  TextField,
-  Grid,
-  useTheme,
-  useMediaQuery,
-} from "@mui/material";
-import ArrowForward from "@mui/icons-material/ArrowForward";
-import WhatsApp from "@mui/icons-material/WhatsApp";
-import Search from "@mui/icons-material/Search";
-import LocalShipping from "@mui/icons-material/LocalShipping";
-import Verified from "@mui/icons-material/Verified";
+import { Box, Container, Typography, Stack, Button, Chip, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, FC, ReactElement } from "react";
+import {
+  ArrowBackRounded,
+  WhatsApp,
+  LocalCafeRounded,
+  AutoAwesomeRounded,
+} from "@mui/icons-material";
 import { motion } from "framer-motion";
+
 import { fetchCategories } from "../api/admin";
 import { searchProducts } from "../api/products";
 import CategoryShowcase from "../components/CategoryShowcase";
 import ProductCard from "../components/ProductCard";
-import StatsCounter from "../components/StatsCounter";
-import WhatsAppCTA from "../components/WhatsAppCTA";
+import AboutContactSection from "../components/AboutContactSection";
 import SEO from "../components/SEO";
 import PageTransition from "../components/PageTransition";
 import { getWhatsAppUrl } from "../utils/whatsapp";
@@ -30,14 +21,18 @@ import { getWhatsAppUrl } from "../utils/whatsapp";
 interface Category {
   _id: string;
   name: string;
-  [key: string]: any;
+  description?: string;
+  image?: string;
+  parent?: string | { name: string };
+  itemsCount?: number;
+  [key: string]: unknown;
 }
 
 interface ProductItem {
   _id: string;
   productName?: string;
   productCode?: string;
-  category?: string;
+  category?: string | { name?: string };
   model?: string;
   description?: string;
   originalUrl?: string | null;
@@ -45,14 +40,52 @@ interface ProductItem {
   tags?: string[];
 }
 
+const SectionHeading: FC<{
+  overline: string;
+  title: string;
+  subtitle?: string;
+}> = ({ overline, title, subtitle }) => (
+  <Stack spacing={1.5} sx={{ textAlign: "center", mb: 5 }}>
+    <Typography
+      variant="overline"
+      sx={{
+        color: "secondary.main",
+        fontWeight: 800,
+        letterSpacing: 2,
+      }}
+    >
+      {overline}
+    </Typography>
+
+    <Typography variant="h3" sx={{ fontWeight: 700 }}>
+      {title}
+    </Typography>
+
+    {subtitle && (
+      <Typography
+        variant="body1"
+        sx={{
+          color: "text.secondary",
+          maxWidth: 620,
+          mx: "auto",
+        }}
+      >
+        {subtitle}
+      </Typography>
+    )}
+
+    <Box className="motif-rule" sx={{ mt: 1 }} />
+  </Stack>
+);
+
 const HomePage: FC = (): ReactElement => {
-  const theme = useTheme();
   const navigate = useNavigate();
-  const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
+
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [loadingCategories, setLoadingCategories] = useState<boolean>(true);
+
   const [products, setProducts] = useState<ProductItem[]>([]);
-  const [heroSearch, setHeroSearch] = useState("");
+  const [loadingProducts, setLoadingProducts] = useState<boolean>(true);
 
   useEffect(() => {
     (async () => {
@@ -61,247 +94,263 @@ const HomePage: FC = (): ReactElement => {
           fetchCategories({ page: 1, limit: 6 }),
           searchProducts({ page: 1, limit: 8 }),
         ]);
+
         setCategories(catRes.items || []);
         setProducts(prodRes.data?.items || []);
       } catch (err) {
         console.error("Failed to fetch home data", err);
       } finally {
         setLoadingCategories(false);
+        setLoadingProducts(false);
       }
     })();
   }, []);
 
-  const handleHeroSearch = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && heroSearch.trim()) {
-      navigate(`/catalog?q=${encodeURIComponent(heroSearch.trim())}`);
-    }
-  };
-
   return (
     <PageTransition>
       <SEO
-        title="Alrhomi Catalog | تجهيزات المطاعم والمطابخ والفنادق"
-        description="تصفح المنتجات، شاهد التفاصيل والصور، وأرسل استفسارك مباشرة عبر واتساب."
-        keywords="تجهيزات مطاعم, مطابخ فندقية, معدات مطاعم, كتالوج الرحومي"
+        title="المرحومي · أناقة الضيافة العربية لمطبخك وبيتك"
+        description="تشكيلة المرحومي من أواني المطبخ، أطقم القهوة والشاي، صواني التقديم، المباخر ومستلزمات الضيافة والمنزل."
         type="website"
       />
 
-      {/* Hero Section */}
+      {/* Hero */}
       <Box
-        className="brand-section-dark"
         sx={{
-          minHeight: { xs: "85vh", md: "90vh" },
-          display: "flex",
-          alignItems: "center",
           position: "relative",
           overflow: "hidden",
+          background:
+            "radial-gradient(1200px 500px at 85% -10%, rgba(194,161,77,0.18), transparent 60%), linear-gradient(180deg, #fbf7f0 0%, var(--cream) 100%)",
+          borderBottom: "1px solid",
+          borderColor: "divider",
         }}
       >
-        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 2 }}>
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
+        <Container maxWidth="lg" sx={{ py: { xs: 7, md: 12 } }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", md: "1.15fr 0.85fr" },
+              gap: { xs: 5, md: 6 },
+              alignItems: "center",
+            }}
           >
-            <Stack spacing={4} sx={{ maxWidth: 800, textAlign: "right" }}>
-              <Typography
-                variant={isMdUp ? "h2" : "h3"}
-                fontWeight={900}
-                sx={{ color: "#ffffff", lineHeight: 1.15 }}
-              >
-                تجهيزات المطاعم والمطابخ والفنادق في كتالوج واحد
-              </Typography>
-
-              <Typography
-                variant="h6"
-                sx={{ color: "rgba(255,255,255,0.85)", lineHeight: 1.7, fontWeight: 400 }}
-              >
-                تصفح المنتجات، شاهد التفاصيل والصور، وأرسل استفسارك مباشرة عبر واتساب.
-              </Typography>
-
-              <TextField
-                fullWidth
-                placeholder="ابحث باسم المنتج أو الكود..."
-                value={heroSearch}
-                onChange={(e) => setHeroSearch(e.target.value)}
-                onKeyDown={handleHeroSearch}
-                InputProps={{
-                  startAdornment: <Search sx={{ mr: 1, color: "rgba(255,255,255,0.5)" }} />,
-                  sx: {
-                    bgcolor: "rgba(255,255,255,0.1)",
-                    borderRadius: 3,
-                    color: "#fff",
-                    border: "1px solid rgba(255,255,255,0.2)",
-                    "&:hover": { bgcolor: "rgba(255,255,255,0.15)" },
-                    "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-                  },
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <Stack
+                spacing={3}
+                sx={{
+                  textAlign: { xs: "center", md: "right" },
+                  alignItems: { xs: "center", md: "flex-start" },
                 }}
-                sx={{ mt: 2 }}
-              />
-
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ pt: 2 }}>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  size="large"
-                  endIcon={<ArrowForward />}
-                  onClick={() => navigate("/catalog")}
-                  sx={{ px: 5, py: 1.5, fontSize: "1.1rem", fontWeight: 700, borderRadius: 3 }}
-                >
-                  تصفح الكتالوج
-                </Button>
-                <Button
-                  variant="outlined"
-                  size="large"
-                  startIcon={<WhatsApp />}
-                  onClick={() => window.open(getWhatsAppUrl(), "_blank")}
+              >
+                <Chip
+                  icon={
+                    <AutoAwesomeRounded
+                      sx={{ color: "secondary.main !important" }}
+                    />
+                  }
+                  label="تشكيلة المرحومي للمنزل والضيافة"
                   sx={{
-                    px: 5,
-                    py: 1.5,
-                    fontSize: "1.1rem",
+                    bgcolor: "rgba(194,161,77,0.12)",
+                    color: "primary.main",
                     fontWeight: 700,
-                    borderRadius: 3,
-                    borderColor: "rgba(255,255,255,0.4)",
-                    color: "#fff",
-                    "&:hover": { borderColor: "#fff", bgcolor: "rgba(255,255,255,0.08)" },
+                    py: 2,
+                    px: 1,
+                    border: "1px solid",
+                    borderColor: "rgba(194,161,77,0.4)",
+                  }}
+                />
+
+                <Typography
+                  variant="h1"
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: { xs: "2.4rem", md: "3.6rem" },
+                    lineHeight: 1.2,
                   }}
                 >
-                  تواصل عبر واتساب
-                </Button>
-              </Stack>
-            </Stack>
-          </motion.div>
-        </Container>
-      </Box>
+                  أناقة الضيافة العربية
+                  <Box
+                    component="span"
+                    sx={{ color: "primary.main", display: "block" }}
+                  >
+                    لمطبخك وبيتك
+                  </Box>
+                </Typography>
 
-      {/* Trust Bar */}
-      <Box sx={{ bgcolor: "var(--bg-section)", py: 4, borderBottom: "1px solid var(--border-soft)" }}>
-        <Container maxWidth="lg">
-          <Grid container spacing={3} sx={{ textAlign: "center" }}>
-            {[
-              { icon: <LocalShipping sx={{ fontSize: 32 }} />, label: "منتجات مصنفة" },
-              { icon: <Search sx={{ fontSize: 32 }} />, label: "صور واضحة" },
-              { icon: <WhatsApp sx={{ fontSize: 32 }} />, label: "استفسار مباشر" },
-              { icon: <Verified sx={{ fontSize: 32 }} />, label: "تجهيز للمطاعم والفنادق" },
-            ].map((item, idx) => (
-              <Grid size={{ xs: 6, md: 3 }} key={idx}>
-                <Stack alignItems="center" spacing={1} sx={{ color: "var(--brand-blue)" }}>
-                  {item.icon}
-                  <Typography variant="body1" fontWeight={600} color="text.primary">
-                    {item.label}
-                  </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: "text.secondary",
+                    fontWeight: 400,
+                    maxWidth: 560,
+                    lineHeight: 1.9,
+                  }}
+                >
+                  أواني وأدوات مطبخ، أطقم قهوة وشاي، صواني تقديم، مباخر ومستلزمات منزل مختارة بعناية —
+                  بجودة عالية وأسعار في المتناول. اطلب بسهولة عبر واتساب.
+                </Typography>
+
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={2}
+                  sx={{ pt: 1, width: { xs: "100%", sm: "auto" } }}
+                >
+                  <Button
+                    variant="contained"
+                    size="large"
+                    endIcon={<ArrowBackRounded />}
+                    onClick={() => navigate("/catalog")}
+                    sx={{ px: 4, py: 1.4, fontSize: "1.05rem" }}
+                  >
+                    تصفّح المنتجات
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    color="success"
+                    size="large"
+                    startIcon={<WhatsApp />}
+                    onClick={() => window.open(getWhatsAppUrl(), "_blank")}
+                    sx={{
+                      px: 4,
+                      py: 1.4,
+                      fontSize: "1.05rem",
+                      borderColor: "success.main",
+                      color: "success.main",
+                      "&:hover": {
+                        borderColor: "success.main",
+                        bgcolor: "rgba(37,211,102,0.08)",
+                      },
+                    }}
+                  >
+                    تواصل معنا
+                  </Button>
                 </Stack>
-              </Grid>
-            ))}
-          </Grid>
+              </Stack>
+            </motion.div>
+
+            {/* Decorative arch panel */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              style={{ display: "flex", justifyContent: "center" }}
+            >
+              <Box
+                sx={{
+                  display: { xs: "none", md: "flex" },
+                  width: 320,
+                  height: 380,
+                  borderRadius: "180px 180px 24px 24px",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  position: "relative",
+                  background:
+                    "linear-gradient(160deg, #34543f 0%, #2c4a3b 60%, #22392e 100%)",
+                  border: "2px solid rgba(194,161,77,0.5)",
+                  boxShadow: "var(--shadow-md)",
+                  overflow: "hidden",
+                  "&::before": {
+                    content: '""',
+                    position: "absolute",
+                    inset: 0,
+                    backgroundImage:
+                      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='70' height='70' viewBox='0 0 70 70'%3E%3Cg fill='none' stroke='%23C2A14D' stroke-width='1' opacity='0.35'%3E%3Crect x='19' y='19' width='32' height='32'/%3E%3Crect x='19' y='19' width='32' height='32' transform='rotate(45 35 35)'/%3E%3C/g%3E%3C/svg%3E\")",
+                    backgroundSize: "70px 70px",
+                  },
+                }}
+              >
+                <LocalCafeRounded
+                  sx={{
+                    fontSize: 120,
+                    color: "rgba(194,161,77,0.9)",
+                    position: "relative",
+                  }}
+                />
+              </Box>
+            </motion.div>
+          </Box>
         </Container>
       </Box>
 
       {/* Categories */}
-      <Box sx={{ py: { xs: 8, md: 12 } }}>
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: "center", mb: 6 }}>
-            <Typography variant="h3" fontWeight={800} sx={{ mb: 2 }}>
-              تصفح حسب <Box component="span" sx={{ color: "var(--brand-blue)" }}>الفئات</Box>
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600, mx: "auto" }}>
-              مجموعة مختارة من أرقى المعدات والأدوات الاحترافية المصنفة بدقة لتسهيل وصولك لما تحتاجه.
-            </Typography>
-          </Box>
-          <CategoryShowcase
-            categories={categories}
-            loading={loadingCategories}
-            limit={6}
-            showMore
-            onMoreClick={() => navigate("/categories")}
-          />
-        </Container>
-      </Box>
+      <Container maxWidth="lg" sx={{ py: { xs: 7, md: 10 } }}>
+        <SectionHeading
+          overline="تسوّق حسب الفئة"
+          title="فئاتنا المختارة"
+          subtitle="من أطقم القهوة والشاي إلى صواني التقديم والمباخر ومستلزمات المنزل."
+        />
 
-      {/* Latest Products */}
-      <Box sx={{ bgcolor: "var(--bg-section)", py: { xs: 8, md: 12 } }}>
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: "center", mb: 6 }}>
-            <Typography variant="h3" fontWeight={800} sx={{ mb: 2 }}>
-              أحدث <Box component="span" sx={{ color: "var(--brand-yellow)" }}>الإضافات</Box>
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600, mx: "auto" }}>
-              كن أول من يكتشف أحدث قطعنا الحصرية المضافة حديثًا للكتالوج.
-            </Typography>
-          </Box>
-          <Grid container spacing={3}>
-            {products.map((product) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={product._id}>
-                <ProductCard {...product} />
-              </Grid>
-            ))}
-          </Grid>
+        <CategoryShowcase
+          categories={categories}
+          loading={loadingCategories}
+          limit={5}
+          showMore
+          onMoreClick={() => navigate("/categories")}
+        />
+      </Container>
+
+      {/* Featured products */}
+      <Box
+        sx={{
+          bgcolor: "#fbf7f0",
+          borderTop: "1px solid",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <Container maxWidth="lg" sx={{ py: { xs: 7, md: 10 } }}>
+          <SectionHeading
+            overline="وصل حديثاً"
+            title="أحدث المنتجات"
+            subtitle="اكتشف أحدث ما أضفناه إلى الكتالوج."
+          />
+
+          {loadingProducts ? (
+            <CategoryShowcase loading limit={8} />
+          ) : (
+            <Grid container spacing={3}>
+              {products.map((product) => (
+                <Grid size={{ xs: 6, sm: 6, lg: 3 }} key={product._id}>
+                  <ProductCard
+                    _id={product._id}
+                    productName={product.productName}
+                    productCode={product.productCode}
+                    category={
+                      typeof product.category === "string"
+                        ? product.category
+                        : product.category?.name
+                    }
+                    model={product.model}
+                    description={product.description}
+                    originalUrl={product.originalUrl || null}
+                    watermarkedUrl={product.watermarkedUrl || null}
+                    tags={product.tags}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+          )}
+
           <Box sx={{ textAlign: "center", mt: 6 }}>
             <Button
               variant="contained"
-              color="primary"
               size="large"
-              endIcon={<ArrowForward />}
+              endIcon={<ArrowBackRounded />}
               onClick={() => navigate("/catalog")}
-              sx={{ px: 6, py: 1.5, fontWeight: 700, borderRadius: 3 }}
+              sx={{ px: 5, py: 1.4 }}
             >
-              اكتشف كل المنتجات
+              عرض كل المنتجات
             </Button>
           </Box>
         </Container>
       </Box>
 
-      {/* Stats */}
-      <StatsCounter />
-
-      {/* How to Order */}
-      <Box sx={{ py: { xs: 8, md: 12 } }}>
-        <Container maxWidth="md">
-          <Typography variant="h3" fontWeight={800} align="center" sx={{ mb: 6 }}>
-            كيف <Box component="span" sx={{ color: "var(--brand-yellow)" }}>تطلب؟</Box>
-          </Typography>
-          <Grid container spacing={4}>
-            {[
-              { step: "1", title: "ابحث", desc: "ابحث عن المنتج بالاسم أو الكود" },
-              { step: "2", title: "افتح التفاصيل", desc: "شاهد الصور والمواصفات" },
-              { step: "3", title: "تواصل عبر واتساب", desc: "أرسل استفسارك مباشرة" },
-            ].map((item) => (
-              <Grid size={{ xs: 12, md: 4 }} key={item.step}>
-                <Stack alignItems="center" spacing={2} sx={{ textAlign: "center" }}>
-                  <Box
-                    sx={{
-                      width: 72,
-                      height: 72,
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      bgcolor: "var(--brand-blue)",
-                      color: "var(--brand-yellow)",
-                      fontSize: "2rem",
-                      fontWeight: 900,
-                    }}
-                  >
-                    {item.step}
-                  </Box>
-                  <Typography variant="h6" fontWeight={700}>
-                    {item.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {item.desc}
-                  </Typography>
-                </Stack>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
-
-      {/* CTA */}
-      <WhatsAppCTA
-        title="هل تحتاج استشارة؟"
-        subtitle="تحدث مع فريقنا مباشرة عبر واتساب وسنساعدك في اختيار الأنسب."
-      />
+      <AboutContactSection />
     </PageTransition>
   );
 };

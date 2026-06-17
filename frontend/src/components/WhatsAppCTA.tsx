@@ -33,7 +33,7 @@ interface WhatsAppCTAProps {
 const WhatsAppCTA: FC<WhatsAppCTAProps> = ({
   id,
   title = "تواصل عبر واتساب",
-  subtitle = "اختر المنتج وسيصلك رد سريع من فريق الرحومي.",
+  subtitle = "اختر المنتج وسيصلك رد سريع من فريق المرحومي.",
   product,
   context,
   sx,
@@ -43,7 +43,7 @@ const WhatsAppCTA: FC<WhatsAppCTAProps> = ({
 
   const message = useMemo(() => {
     if (!product) {
-      return `مرحباً فريق الرحومي، أود الحصول على استشارة سريعة حول منتجاتكم. (${context || "landing"})`;
+      return `مرحباً فريق المرحومي، أود الحصول على استشارة سريعة حول منتجاتكم. (${context || "landing"})`;
     }
     return buildProductWhatsAppMessage({
       productName: product.productName,

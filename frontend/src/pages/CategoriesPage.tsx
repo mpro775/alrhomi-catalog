@@ -25,6 +25,7 @@ import Refresh from "@mui/icons-material/Refresh";
 import { fetchCategories } from "../api/admin";
 import SEO from "../components/SEO";
 import { Category } from "../types/models.types";
+import { onImageError } from "../utils/fallbackImage";
 
 interface OrganizedCategory extends Category {
   children: Category[];
@@ -98,8 +99,8 @@ export default function CategoriesPage() {
     <>
       <SEO
         title="فئات المنتجات - كتالوج المرحومي"
-        description="استكشف جميع فئات المنتجات في كتالوج المرحومي. معدات وأدوات المطاعم والمطابخ والكافيهات والفنادق."
-        keywords="فئات المنتجات, معدات المطاعم, أدوات المطابخ, كتالوج المرحومي"
+        description="استكشف فئات المرحومي: أطقم القهوة والشاي، صواني التقديم، أواني المطبخ، المباخر ومستلزمات الضيافة والمنزل."
+        keywords="فئات المنتجات, أواني المطبخ, أطقم القهوة, مستلزمات الضيافة, المرحومي"
         type="website"
       />
 
@@ -302,6 +303,7 @@ export default function CategoriesPage() {
                                 component="img"
                                 image={parentCategory.image}
                                 alt={parentCategory.name}
+                                onError={onImageError}
                                 className="category-image"
                                 sx={{
                                   width: "100%",
@@ -427,6 +429,7 @@ export default function CategoriesPage() {
                                   component="img"
                                   image={childCategory.image}
                                   alt={childCategory.name}
+                                  onError={onImageError}
                                   className="category-image"
                                   sx={{
                                     width: "100%",

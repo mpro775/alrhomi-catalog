@@ -1,0 +1,485 @@
+{
+  "scrapedAt": "2026-06-17T02:27:53.541Z",
+  "source": "https://mini-outlet.com/brands/579969340",
+  "categories": [
+    {
+      "id": "5077228",
+      "name": "حافظات الطعام",
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/8700/image/67cca9efb4ff4548dce71ffd0e99d71d2dd70ca3.jpg"
+    },
+    {
+      "id": "4726820",
+      "name": "براد شاي & ركوة قهوة",
+      "image": "https://cdn.salla.sa/Ynjro/cb1e8741-d5a6-4091-9593-3dee7d21c695-500x500-e0N5zLKqUwuVW2uVhQyNenhES7lkbBkiKawfh3OF.jpg"
+    },
+    {
+      "id": "8795478",
+      "name": "مباخر",
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/246/image/5b99688b63f808db6ba060554f7a3eae6c1ed21c.jpg"
+    },
+    {
+      "id": "4394509",
+      "name": "صحون وأطباق المائدة",
+      "image": "https://cdn.salla.sa/Ynjro/ff272f96-31b8-4444-970a-465894cc5e36-500x500-zfr3Qfu70ya8HzUa8XKbvdN5tPGEqJOJBtjGI8YR.jpg"
+    },
+    {
+      "id": "5483270",
+      "name": "أطقم الحافظات",
+      "image": "https://cdn.salla.sa/Ynjro/2f83a941-a53e-4628-afc5-02c2475343b8-500x500-7fNwOfK0fMu8vfbowfA7Aat5QLVJ6r2HwO9BHWda.png"
+    },
+    {
+      "id": "5766861",
+      "name": "منتجات الضيافة والتقديم",
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/5057/image/0b73029a991b935760f20c0b19bcc158af4aea21.jpg"
+    },
+    {
+      "id": "4538291",
+      "name": "مفارش الطاولات والسفرة",
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/7010/image/14e017a1699456f660165724c75f4d04a47c7e0c.jpg"
+    },
+    {
+      "id": "4268452",
+      "name": "صواني الفرن والخبز",
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/10089/image/6dd8269c19543b738d0f862f0a0a443d272c68cc.png"
+    },
+    {
+      "id": "4334972",
+      "name": "فناجين قهوة تركي",
+      "image": "https://cdn.salla.sa/Ynjro/1088a11a-700c-4f7a-9593-e92f773fc58f-500x500-Dwz3yq2kzg7UycqXiGAjK1iUkAJQVYukZaO2XExM.jpg"
+    },
+    {
+      "id": "4268485",
+      "name": "صواني التقديم",
+      "image": "https://cdn.salla.sa/Ynjro/e245ff94-11f2-4903-97f9-d948e98cf8d7-500x500-srTksTfGYgTErcQSiqQf6XOU2RLmZUDHhtvdrdoL.jpg"
+    },
+    {
+      "id": "8795502",
+      "name": "طاولات",
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/151/image/d6000794dae71a1e46c8b4fd706c21c26f5d2c36.jpg"
+    },
+    {
+      "id": "8795510",
+      "name": "مراكن زرع",
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/1205/image/47296bad234361a5702b16f2112a2bbb11e4604e.jpg"
+    },
+    {
+      "id": "4613644",
+      "name": "تمريات و سكريات",
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/2685/image/bfb55eb823a7361fb387b810020f24918a40b99b.jpg"
+    },
+    {
+      "id": "4334968",
+      "name": "فناجين القهوة السعودية",
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/8646/image/3e36127d21b30d2603f2dfa6c6daece893220646.jpg"
+    }
+  ],
+  "products": [
+    {
+      "id": "2100648170",
+      "name": "طقم حافظات طعام بلاستيك 4 قطع بيج",
+      "categories": [
+        {
+          "id": "5077228",
+          "name": "حافظات الطعام"
+        }
+      ],
+      "category": "حافظات الطعام",
+      "price": 98,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/8700/image/67cca9efb4ff4548dce71ffd0e99d71d2dd70ca3.jpg"
+    },
+    {
+      "id": "566094287",
+      "name": "طقم براد شاي مغربي ستيل 3 قطع",
+      "categories": [
+        {
+          "id": "4726820",
+          "name": "براد شاي & ركوة قهوة"
+        }
+      ],
+      "category": "براد شاي & ركوة قهوة",
+      "price": 198,
+      "image": "https://cdn.salla.sa/Ynjro/cb1e8741-d5a6-4091-9593-3dee7d21c695-500x500-e0N5zLKqUwuVW2uVhQyNenhES7lkbBkiKawfh3OF.jpg"
+    },
+    {
+      "id": "560385164",
+      "name": "ركوة قهوة ستيل يد خشب سعة 500 مل",
+      "categories": [
+        {
+          "id": "4726820",
+          "name": "براد شاي & ركوة قهوة"
+        }
+      ],
+      "category": "براد شاي & ركوة قهوة",
+      "price": 57.99,
+      "image": "https://cdn.salla.sa/Ynjro/6aad1b5b-12fc-4f68-9823-1225230f5d35-500x500-jRYO4PQPxPwM79voNr0ddWcMxJ516As397zkTrUt.jpg"
+    },
+    {
+      "id": "685312747",
+      "name": "مبخرة عصرية فاخرة لون ذهبي",
+      "categories": [
+        {
+          "id": "8795478",
+          "name": "مباخر"
+        }
+      ],
+      "category": "مباخر",
+      "price": 45,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/246/image/5b99688b63f808db6ba060554f7a3eae6c1ed21c.jpg"
+    },
+    {
+      "id": "1307380079",
+      "name": "صحن كوزي بقاعدة ستيل بغطاء مقاس 35 سم",
+      "categories": [
+        {
+          "id": "4394509",
+          "name": "صحون وأطباق المائدة"
+        }
+      ],
+      "category": "صحون وأطباق المائدة",
+      "price": 78,
+      "image": "https://cdn.salla.sa/Ynjro/ff272f96-31b8-4444-970a-465894cc5e36-500x500-zfr3Qfu70ya8HzUa8XKbvdN5tPGEqJOJBtjGI8YR.jpg"
+    },
+    {
+      "id": "1469711666",
+      "name": "طقم حافظات طعام ستيل 3 قطع كبير",
+      "categories": [
+        {
+          "id": "5077228",
+          "name": "حافظات الطعام"
+        },
+        {
+          "id": "5483270",
+          "name": "أطقم الحافظات"
+        }
+      ],
+      "category": "حافظات الطعام\\/أطقم الحافظات",
+      "price": 158,
+      "image": "https://cdn.salla.sa/Ynjro/2f83a941-a53e-4628-afc5-02c2475343b8-500x500-7fNwOfK0fMu8vfbowfA7Aat5QLVJ6r2HwO9BHWda.png"
+    },
+    {
+      "id": "1247138203",
+      "name": "صحن تقديم بورسلين مقسم ثلاثي ذهبي",
+      "categories": [
+        {
+          "id": "5766861",
+          "name": "منتجات الضيافة والتقديم"
+        }
+      ],
+      "category": "منتجات الضيافة والتقديم",
+      "price": 98.99,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/5057/image/0b73029a991b935760f20c0b19bcc158af4aea21.jpg"
+    },
+    {
+      "id": "1976011601",
+      "name": "مفرش سفرة 137*150 سم ملون",
+      "categories": [
+        {
+          "id": "4538291",
+          "name": "مفارش الطاولات والسفرة"
+        }
+      ],
+      "category": "مفارش الطاولات والسفرة",
+      "price": 11.5,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/7010/image/14e017a1699456f660165724c75f4d04a47c7e0c.jpg"
+    },
+    {
+      "id": "525633344",
+      "name": "سفرة ملون مقاس 137*150 سم",
+      "categories": [
+        {
+          "id": "4538291",
+          "name": "مفارش الطاولات والسفرة"
+        }
+      ],
+      "category": "مفارش الطاولات والسفرة",
+      "price": 5.75,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/8013/image/acdd18d89b28d21ba215dc1f85c8718fbd7f23c2.jpg"
+    },
+    {
+      "id": "566508101",
+      "name": "مفرش سفرة ملون مقاس 137*150 سم",
+      "categories": [
+        {
+          "id": "4538291",
+          "name": "مفارش الطاولات والسفرة"
+        }
+      ],
+      "category": "مفارش الطاولات والسفرة",
+      "price": 5.75,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/8017/image/a6c048470051c4ec6aa4c9ceab945e0a23213934.jpg"
+    },
+    {
+      "id": "1583922809",
+      "name": "مفرش سفرة ملون مقاس 137*150 سم",
+      "categories": [
+        {
+          "id": "4538291",
+          "name": "مفارش الطاولات والسفرة"
+        }
+      ],
+      "category": "مفارش الطاولات والسفرة",
+      "price": 5.75,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/8018/image/f8f5a01ecf16b08f0214315feb973a11d737a7fe.jpg"
+    },
+    {
+      "id": "849703039",
+      "name": "مفرش سفرة ملون مقاس 137*150 سم",
+      "categories": [
+        {
+          "id": "4538291",
+          "name": "مفارش الطاولات والسفرة"
+        }
+      ],
+      "category": "مفارش الطاولات والسفرة",
+      "price": 5.75,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/8019/image/b65e0d72bdf3faf3b405eb9cae5fb33dddf594bc.jpg"
+    },
+    {
+      "id": "1624789374",
+      "name": "مفرش سفرة ملون مقاس 137*150 سم",
+      "categories": [
+        {
+          "id": "4538291",
+          "name": "مفارش الطاولات والسفرة"
+        }
+      ],
+      "category": "مفارش الطاولات والسفرة",
+      "price": 5.75,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/8020/image/1cf04ffd5fd95d6423f659540c344d0c90f4fe94.jpg"
+    },
+    {
+      "id": "1159074684",
+      "name": "مفرش سفرة ملون مقاس 137*150 سم",
+      "categories": [
+        {
+          "id": "4538291",
+          "name": "مفارش الطاولات والسفرة"
+        }
+      ],
+      "category": "مفارش الطاولات والسفرة",
+      "price": 5.75,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/8021/image/86889c255fb593360f5b90702af33e06c365a52e.jpg"
+    },
+    {
+      "id": "1800008819",
+      "name": "مفرش سفرة ملون مقاس137*150 سم",
+      "categories": [
+        {
+          "id": "4538291",
+          "name": "مفارش الطاولات والسفرة"
+        }
+      ],
+      "category": "مفارش الطاولات والسفرة",
+      "price": 5.75,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/8022/image/0ed29b2a61b4de86a5b60b5df05a0f09cfafefa7.jpg"
+    },
+    {
+      "id": "426562930",
+      "name": "مفرش سفرة ملون مقاس 137*150 سم",
+      "categories": [
+        {
+          "id": "4538291",
+          "name": "مفارش الطاولات والسفرة"
+        }
+      ],
+      "category": "مفارش الطاولات والسفرة",
+      "price": 5.75,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/8023/image/66f36087d94e4ea7b0beca5e929a8f934ab50736.jpg"
+    },
+    {
+      "id": "804066323",
+      "name": "مفرش سفرة ملون مقاس 137*150 سم",
+      "categories": [
+        {
+          "id": "4538291",
+          "name": "مفارش الطاولات والسفرة"
+        }
+      ],
+      "category": "مفارش الطاولات والسفرة",
+      "price": 5.75,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/8024/image/552a6a3ddaa57ddc5d229b398c5deffc38fa9717.jpg"
+    },
+    {
+      "id": "267860961",
+      "name": "طقم صواني فرن سيراميك قطعتين بيج",
+      "categories": [
+        {
+          "id": "4268452",
+          "name": "صواني الفرن والخبز"
+        }
+      ],
+      "category": "صواني الفرن والخبز",
+      "price": 50,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/10089/image/6dd8269c19543b738d0f862f0a0a443d272c68cc.png"
+    },
+    {
+      "id": "1951228232",
+      "name": "طقم فناجين قهوة تركي باترن 12 قطعة بني",
+      "categories": [
+        {
+          "id": "4334972",
+          "name": "فناجين قهوة تركي"
+        }
+      ],
+      "category": "فناجين قهوة تركي",
+      "price": 85,
+      "image": "https://cdn.salla.sa/Ynjro/1088a11a-700c-4f7a-9593-e92f773fc58f-500x500-Dwz3yq2kzg7UycqXiGAjK1iUkAJQVYukZaO2XExM.jpg"
+    },
+    {
+      "id": "1219128620",
+      "name": "صينية تقديم مستطيل استيل 45 سم فضي ذهبي",
+      "categories": [
+        {
+          "id": "4268485",
+          "name": "صواني التقديم"
+        }
+      ],
+      "category": "صواني التقديم",
+      "price": 57.99,
+      "image": "https://cdn.salla.sa/Ynjro/e245ff94-11f2-4903-97f9-d948e98cf8d7-500x500-srTksTfGYgTErcQSiqQf6XOU2RLmZUDHhtvdrdoL.jpg"
+    },
+    {
+      "id": "1698530971",
+      "name": "صينية تقديم مستطيل استيل 35 سم فضي ذهبي",
+      "categories": [
+        {
+          "id": "4268485",
+          "name": "صواني التقديم"
+        }
+      ],
+      "category": "صواني التقديم",
+      "price": 48,
+      "image": "https://cdn.salla.sa/Ynjro/8e454bab-ab83-46ea-9684-60602c647276-500x500-taeN7A4ahcAs8dUaCLW6pkm7y2UMNZEGXBUHfUXY.jpg"
+    },
+    {
+      "id": "885672623",
+      "name": "صينية تقديم مستطيل استيل 35 سم فضي",
+      "categories": [
+        {
+          "id": "4268485",
+          "name": "صواني التقديم"
+        }
+      ],
+      "category": "صواني التقديم",
+      "price": 42,
+      "image": "https://cdn.salla.sa/Ynjro/88900e2e-0633-464c-a4db-117ecd6dc088-500x500-CTBXrPIlW4lYXJ5J1ZzJ5FZG2KLfRjx6t3xnQ0zt.jpg"
+    },
+    {
+      "id": "267816726",
+      "name": "صحن كوزي بقاعدة ستيل بغطاء مقاس 50 سم",
+      "categories": [
+        {
+          "id": "4394509",
+          "name": "صحون وأطباق المائدة"
+        }
+      ],
+      "category": "صحون وأطباق المائدة",
+      "price": 135,
+      "image": "https://cdn.salla.sa/Ynjro/8b923d75-60a3-4404-94d5-88a28c32e62c-500x500-u5s1muIzJPETbefKiMx5VO4JyXpFJxvd0KtlkJtm.jpg"
+    },
+    {
+      "id": "381623197",
+      "name": "طقم طاولات خشب موديرن 3 قطع",
+      "categories": [
+        {
+          "id": "8795502",
+          "name": "طاولات"
+        }
+      ],
+      "category": "طاولات",
+      "price": 195.01,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/151/image/d6000794dae71a1e46c8b4fd706c21c26f5d2c36.jpg"
+    },
+    {
+      "id": "1272000192",
+      "name": "طقم مركن معدني ذهبي برجول قطعتين",
+      "categories": [
+        {
+          "id": "8795510",
+          "name": "مراكن زرع"
+        }
+      ],
+      "category": "مراكن زرع",
+      "price": 25,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/1205/image/47296bad234361a5702b16f2112a2bbb11e4604e.jpg"
+    },
+    {
+      "id": "1418942372",
+      "name": "طقم تباسي أكليرك يد ذهبي قطعتين",
+      "categories": [
+        {
+          "id": "4268485",
+          "name": "صواني التقديم"
+        }
+      ],
+      "category": "صواني التقديم",
+      "price": 69,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/1487/image/2703d65831e9b7a9f9a5c93ef8870b002f12ac9f.jpg"
+    },
+    {
+      "id": "1878412145",
+      "name": "براد شاي استيل كامل يد جانبي مقاس 1 لتر",
+      "categories": [
+        {
+          "id": "5766861",
+          "name": "منتجات الضيافة والتقديم"
+        }
+      ],
+      "category": "منتجات الضيافة والتقديم",
+      "price": 34.99,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/2353/image/3b73b8701687f915d32df1596ccd4605cd1bafd6.jpg"
+    },
+    {
+      "id": "2120278343",
+      "name": "صحن كوزي بقاعدة ستيل بغطاء مقاس 40 سم",
+      "categories": [
+        {
+          "id": "4394509",
+          "name": "صحون وأطباق المائدة"
+        }
+      ],
+      "category": "صحون وأطباق المائدة",
+      "price": 89,
+      "image": "https://cdn.salla.sa/Ynjro/db1820db-8009-4d33-9165-1d096c19c555-500x500-W628haF9AOseQ8BcP8SmP6xZ3yT0PTNH6pDuXDvY.jpg"
+    },
+    {
+      "id": "2020790914",
+      "name": "تمرية زجاج بغطاء لون أسود شفاف",
+      "categories": [
+        {
+          "id": "4613644",
+          "name": "تمريات و سكريات"
+        }
+      ],
+      "category": "تمريات و سكريات",
+      "price": 6.5,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/2685/image/bfb55eb823a7361fb387b810020f24918a40b99b.jpg"
+    },
+    {
+      "id": "609103722",
+      "name": "ستاند تقديم حلويات زجاج  مع المعدن 30 سم",
+      "categories": [
+        {
+          "id": "5766861",
+          "name": "منتجات الضيافة والتقديم"
+        }
+      ],
+      "category": "منتجات الضيافة والتقديم",
+      "price": 28,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/5025/image/1ed5a5cb0cc5d0141095c5963beaf5dc6737aa35.jpg"
+    },
+    {
+      "id": "1799077414",
+      "name": "طقم فناجين قهوة سعودية بورسلين ياباني أبيض\\/فضي12 قطعة",
+      "categories": [
+        {
+          "id": "4334968",
+          "name": "فناجين القهوة السعودية"
+        }
+      ],
+      "category": "فناجين القهوة السعودية",
+      "price": 49,
+      "image": "https://storage.linker-sellers.com/public/tenant_u_490/product_images/8646/image/3e36127d21b30d2603f2dfa6c6daece893220646.jpg"
+    }
+  ]
+}

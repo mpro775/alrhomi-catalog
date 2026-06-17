@@ -45,12 +45,12 @@ export interface OrganizationSchema {
 export const getOrganizationSchema = (): OrganizationSchema => ({
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "كتالوج الرحومي",
+  name: "كتالوج المرحومي",
   alternateName: "Alrhomi Catalog",
   url: window.location.origin,
   logo: `${window.location.origin}/logo512.png`,
   description:
-    "كتالوج الرحومي - منصة رائدة لعرض وتحميل صور المنتجات عالية الجودة",
+    "كتالوج المرحومي - منصة رائدة لعرض وتحميل صور المنتجات عالية الجودة",
   address: {
     "@type": "PostalAddress",
     addressCountry: "YE",
@@ -93,7 +93,7 @@ export interface WebSiteSchema {
 export const getWebSiteSchema = (): WebSiteSchema => ({
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "كتالوج الرحومي",
+  name: "كتالوج المرحومي",
   url: window.location.origin,
   potentialAction: {
     "@type": "SearchAction",
@@ -166,7 +166,7 @@ export const getProductSchema = (product: ProductInfo): ProductSchema => ({
   image: product.imageUrl || product.url || "",
   brand: {
     "@type": "Brand",
-    name: product.brand || "كتالوج الرحومي",
+    name: product.brand || "كتالوج المرحومي",
   },
   category: product.category || "منتجات عامة",
   sku: product.id || product.sku || "",
@@ -252,7 +252,7 @@ export const getItemListSchema = (
 ): ItemListSchema => ({
   "@context": "https://schema.org",
   "@type": "ItemList",
-  name: category ? `${category} - كتالوج الرحومي` : "كتالوج المنتجات",
+  name: category ? `${category} - كتالوج المرحومي` : "كتالوج المنتجات",
   numberOfItems: items.length,
   itemListElement: items.slice(0, 10).map((item, index) => ({
     "@type": "ListItem",

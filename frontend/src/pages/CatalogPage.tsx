@@ -1,26 +1,26 @@
-import { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
+import { useState, useEffect, ReactNode } from "react";
 import {
   Container,
   Box,
   Pagination,
   Typography,
   useMediaQuery,
-  Skeleton,
   Grid,
   Stack,
   Button,
-  Alert,
   FormControl,
   Select,
   MenuItem,
   useTheme,
+  Paper,
 } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
-import Tune from "@mui/icons-material/Tune";
-import WhatsApp from "@mui/icons-material/WhatsApp";
-import { motion, AnimatePresence } from "framer-motion";
-
+import {
+  Tune,
+  RefreshRounded,
+  SearchOffRounded,
+  ErrorOutlineRounded,
+} from "@mui/icons-material";
 
 import SearchBar from "../components/SearchBar";
 import Filters from "../components/Filters";
@@ -29,7 +29,6 @@ import { searchProducts } from "../api/products";
 import { fetchCategories } from "../api/admin";
 import SEO from "../components/SEO";
 import PageTransition from "../components/PageTransition";
-import { getWhatsAppUrl } from "../utils/whatsapp";
 import type { Product, Category } from "../types/models.types";
 
 type CatalogFilters = {
@@ -44,8 +43,30 @@ const parsePageParam = (value: string | null): number => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
 };
 
+const cardSx = {
+  bgcolor: "background.paper",
+  border: "1px solid",
+  borderColor: "divider",
+  borderRadius: 3,
+  boxShadow: "var(--shadow-soft)",
+} as const;
+
+const StateWrap = ({ children }: { children: ReactNode }) => (
+  <Paper
+    elevation={0}
+    sx={{
+      ...cardSx,
+      p: { xs: 4, md: 8 },
+      textAlign: "center",
+    }}
+  >
+    <Stack spacing={2} alignItems="center">
+      {children}
+    </Stack>
+  </Paper>
+);
+
 export default function CatalogPage() {
-  const { t } = useTranslation();
   const theme = useTheme();
   const [searchParams, setSearchParams] = useSearchParams();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
@@ -59,10 +80,22 @@ export default function CatalogPage() {
   };
 
   const page = parsePageParam(searchParams.get("page"));
-  const [data, setData] = useState<{ items: Product[]; totalPages: number; totalItems: number }>({ items: [], totalPages: 1, totalItems: 0 });
+
+  const [data, setData] = useState<{
+    items: Product[];
+    totalPages: number;
+    totalItems: number;
+  }>({
+    items: [],
+    totalPages: 1,
+    totalItems: 0,
+  });
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
   const [categories, setCategories] = useState<Category[]>([]);
+
   const limit = isMdUp ? 12 : 8;
 
   useEffect(() => {
@@ -77,9 +110,10 @@ export default function CatalogPage() {
   }, []);
 
   useEffect(() => {
-    const fetch = async () => {
+    const run = async () => {
       setLoading(true);
       setError("");
+
       try {
         const res = await searchProducts({
           q: filters.q,
@@ -89,194 +123,292 @@ export default function CatalogPage() {
           sortBy: filters.sortBy,
           sortOrder: filters.sortOrder,
         });
+
         setData({
           items: res.data.items,
           totalPages: res.data.totalPages,
           totalItems: res.data.totalItems || 0,
         });
-      } catch (err) {
-        setError("تعذر تحميل المنتجات حاليًا.");
+      } catch {
+        setError("تعذّر تحميل المنتجات حالياً. تأكد من اتصالك وحاول مرة أخرى.");
       } finally {
         setLoading(false);
       }
     };
-    fetch();
-  }, [filters.q, filters.category, filters.sortBy, filters.sortOrder, page, limit]);
 
-  const handleFilterChange = (payload: Partial<CatalogFilters>) => {
+    run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    filters.q,
+    filters.category,
+    filters.sortBy,
+    filters.sortOrder,
+    page,
+    limit,
+    reloadKey,
+  ]);
+
+  const handleFilterChange = (
+    payload: Partial<CatalogFilters & { page: string }>
+  ) => {
     const nextParams = new URLSearchParams(searchParams);
+
     Object.entries({ ...filters, ...payload }).forEach(([key, val]) => {
-      if (val) nextParams.set(key, val);
+      if (val) nextParams.set(key, String(val));
       else nextParams.delete(key);
     });
-    nextParams.delete("page");
+
+    if (!("page" in payload)) nextParams.delete("page");
+
     setSearchParams(nextParams);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handlePageChange = (_event: React.ChangeEvent<unknown>, newPage: number) => {
-    const nextParams = new URLSearchParams(searchParams);
-    if (newPage > 1) nextParams.set('page', String(newPage));
-    else nextParams.delete('page');
-    setSearchParams(nextParams);
-  };
+  const hasActiveFilters = Boolean(filters.q || filters.category);
 
   return (
     <PageTransition>
-      <SEO title="Catalog | Alrhomi Showroom" description="Browse our professional equipment collection." />
+      <SEO
+        title="كتالوج المرحومي · المنتجات"
+        description="تصفّح تشكيلة المرحومي من أواني المطبخ ومستلزمات الضيافة والمنزل."
+      />
 
-      <Box sx={{ py: { xs: 4, md: 8 } }}>
-        <Container maxWidth="xl">
-          {/* Page Header */}
-          <Box sx={{ mb: 6, textAlign: "center" }}>
-            <Typography variant="h2" sx={{ fontWeight: 800, mb: 2 }} className="text-gradient">
-              {t('catalog.title')}
-            </Typography>
-            <Typography variant="body1" sx={{ color: "var(--text-muted)", maxWidth: 600, mx: "auto" }}>
-              {t('catalog.subtitle')}
-            </Typography>
-          </Box>
+      <Container maxWidth="xl" sx={{ py: { xs: 4, md: 7 } }}>
+        {/* Header */}
+        <Box sx={{ mb: 5, textAlign: "center" }}>
+          <Typography
+            variant="h2"
+            sx={{
+              fontWeight: 700,
+              mb: 1,
+              fontSize: { xs: "2rem", md: "2.6rem" },
+            }}
+          >
+            كتالوج المرحومي
+          </Typography>
 
-          {/* Search & Layout */}
-          <Grid container spacing={4}>
-            {/* Sidebar Filters */}
-            <Grid size={{ xs: 12, md: 3 }} sx={{ display: { xs: showMobileFilters ? "block" : "none", md: "block" } }}>
-              <Box className="glass" sx={{ p: 4, position: "sticky", top: 100 }}>
-                <Filters
-                  categories={categories}
-                  values={filters}
-                  onChange={handleFilterChange}
-                  onReset={() => setSearchParams(new URLSearchParams())}
+          <Typography
+            variant="body1"
+            sx={{
+              color: "text.secondary",
+              maxWidth: 600,
+              mx: "auto",
+            }}
+          >
+            اختر ما يناسب مطبخك وضيافتك، وتواصل معنا عبر واتساب لإتمام طلبك.
+          </Typography>
+
+          <Box className="motif-rule" sx={{ mt: 2 }} />
+        </Box>
+
+        <Grid container spacing={4}>
+          {/* Sidebar filters */}
+          <Grid
+            size={{ xs: 12, md: 3 }}
+            sx={{
+              display: {
+                xs: showMobileFilters ? "block" : "none",
+                md: "block",
+              },
+            }}
+          >
+            <Paper
+              elevation={0}
+              sx={{
+                ...cardSx,
+                p: 3,
+                position: "sticky",
+                top: 88,
+              }}
+            >
+              <Filters
+                categories={categories}
+                values={filters}
+                onChange={handleFilterChange}
+                onReset={() => setSearchParams(new URLSearchParams())}
+              />
+            </Paper>
+          </Grid>
+
+          {/* Main */}
+          <Grid size={{ xs: 12, md: 9 }}>
+            <Stack spacing={3}>
+              <Paper elevation={0} sx={{ ...cardSx, p: 1.5 }}>
+                <SearchBar
+                  value={filters.q}
+                  onSearch={(q) => handleFilterChange({ q })}
+                  placeholder="ابحث عن منتج..."
                 />
-              </Box>
-            </Grid>
+              </Paper>
 
-            {/* Main Content */}
-            <Grid size={{ xs: 12, md: 9 }}>
-              <Stack spacing={4}>
-                {/* Search Bar Glass */}
-                <Box className="glass" sx={{ p: 2 }}>
-                  <SearchBar
-                    value={filters.q}
-                    onSearch={(q) => handleFilterChange({ q })}
-                    placeholder={t('catalog.search_placeholder')}
-                  />
-                </Box>
+              <Paper
+                elevation={0}
+                sx={{
+                  ...cardSx,
+                  p: 2,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: 2,
+                  flexWrap: "wrap",
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: 600, color: "text.secondary" }}
+                >
+                  {loading ? "جارٍ التحميل…" : `${data.totalItems} منتج`}
+                </Typography>
 
-                {/* Toolbar */}
-                <Box className="glass" sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                    {t('catalog.results_found', { count: data.totalItems })}
-                  </Typography>
+                <Stack direction="row" spacing={1.5} alignItems="center">
+                  <Button
+                    sx={{ display: { md: "none" } }}
+                    variant="outlined"
+                    startIcon={<Tune />}
+                    onClick={() => setShowMobileFilters((s) => !s)}
+                  >
+                    الفلاتر
+                  </Button>
 
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Button
-                      sx={{ display: { md: "none" } }}
-                      variant="outlined"
-                      startIcon={<Tune />}
-                      onClick={() => setShowMobileFilters(!showMobileFilters)}
+                  <FormControl size="small" sx={{ minWidth: 170 }}>
+                    <Select
+                      value={`${filters.sortBy}-${filters.sortOrder}`}
+                      onChange={(e) => {
+                        const [sortBy, sortOrder] = e.target.value.split("-");
+                        handleFilterChange({
+                          sortBy,
+                          sortOrder: sortOrder as "asc" | "desc",
+                        });
+                      }}
                     >
-                      الفلاتر
-                    </Button>
+                      <MenuItem value="createdAt-desc">الأحدث</MenuItem>
+                      <MenuItem value="createdAt-asc">الأقدم</MenuItem>
+                      <MenuItem value="productName-asc">الاسم: أ - ي</MenuItem>
+                      <MenuItem value="productName-desc">الاسم: ي - أ</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Stack>
+              </Paper>
 
-                    <FormControl size="small" sx={{ minWidth: 180 }}>
-                      <Select
-                        value={`${filters.sortBy}-${filters.sortOrder}`}
-                        onChange={(e) => {
-                          const [sortBy, sortOrder] = e.target.value.split("-");
-                          handleFilterChange({ sortBy, sortOrder: sortOrder as "asc" | "desc" });
-                        }}
-                        className="glass"
-                        sx={{ borderRadius: "12px", ".MuiOutlinedInput-notchedOutline": { border: "none" } }}
-                      >
-                        <MenuItem value="createdAt-desc">{t('catalog.sort_options.newest')}</MenuItem>
-                        <MenuItem value="createdAt-asc">{t('catalog.sort_options.oldest')}</MenuItem>
-                        <MenuItem value="productName-asc">{t('catalog.sort_options.name_asc')}</MenuItem>
-                        <MenuItem value="productName-desc">{t('catalog.sort_options.name_desc')}</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Stack>
-                </Box>
-
-                {/* Products Grid */}
-                <AnimatePresence mode="wait">
-                  {loading ? (
-                    <Grid container spacing={3}>
-                      {Array.from({ length: limit }).map((_, i) => (
-                        <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={i}>
-                          <Skeleton variant="rectangular" height={350} sx={{ borderRadius: 6, bgcolor: "rgba(255,255,255,0.05)" }} />
-                        </Grid>
-                      ))}
-                    </Grid>
-                  ) : error ? (
-                    <Alert severity="error" className="glass">{error}</Alert>
-                  ) : (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    >
-                      <Grid container spacing={3}>
-                        {data.items.map((product) => (
-                          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={product._id}>
-                            <ProductCard
-                              _id={product._id}
-                              productName={product.productName}
-                              productCode={product.productCode}
-                              category={typeof product.category === "string" ? product.category : undefined}
-                              model={product.model}
-                              description={product.description}
-                              originalUrl={(product as any).originalUrl || null}
-                              watermarkedUrl={(product as any).watermarkedUrl || null}
-                              tags={product.tags}
-                            />
-                          </Grid>
-                        ))}
-                      </Grid>
-
-                      {data.items.length === 0 && !loading && (
-                        <Box sx={{ textAlign: "center", py: 8 }}>
-                          <Typography variant="h6" color="text.secondary" gutterBottom>
-                            لا توجد نتائج
-                          </Typography>
-                          <Button
-                            variant="outlined"
-                            onClick={() => setSearchParams(new URLSearchParams())}
-                            sx={{ mr: 2 }}
-                          >
-                            مسح الفلاتر
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            startIcon={<WhatsApp />}
-                            href={getWhatsAppUrl()}
-                            target="_blank"
-                          >
-                            تواصل واتساب وسنساعدك
-                          </Button>
-                        </Box>
-                      )}
-
-                      {data.totalPages > 1 && (
-                        <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
-<Pagination
-                            count={data.totalPages}
-                            page={page}
-                            onChange={handlePageChange as any}
-                            color="primary"
-                            size="large"
+              {/* Grid / states */}
+              {loading ? (
+                <Grid container spacing={3}>
+                  {Array.from({ length: limit }).map((_, i) => (
+                    <Grid size={{ xs: 6, sm: 6, lg: 4 }} key={i}>
+                      <Box sx={{ ...cardSx, overflow: "hidden" }}>
+                        <Box sx={{ paddingTop: "100%", bgcolor: "#f1e9dc" }} />
+                        <Box sx={{ p: 2 }}>
+                          <Box
+                            sx={{
+                              height: 16,
+                              bgcolor: "#efe7d9",
+                              borderRadius: 1,
+                              mb: 1,
+                            }}
+                          />
+                          <Box
+                            sx={{
+                              height: 16,
+                              width: "60%",
+                              bgcolor: "#efe7d9",
+                              borderRadius: 1,
+                            }}
                           />
                         </Box>
-                      )}
-                    </motion.div>
+                      </Box>
+                    </Grid>
+                  ))}
+                </Grid>
+              ) : error ? (
+                <StateWrap>
+                  <ErrorOutlineRounded
+                    sx={{ fontSize: 56, color: "warning.main" }}
+                  />
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                    حدث خطأ
+                  </Typography>
+                  <Typography sx={{ color: "text.secondary" }}>
+                    {error}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<RefreshRounded />}
+                    onClick={() => setReloadKey((k) => k + 1)}
+                  >
+                    إعادة المحاولة
+                  </Button>
+                </StateWrap>
+              ) : data.items.length === 0 ? (
+                <StateWrap>
+                  <SearchOffRounded
+                    sx={{ fontSize: 56, color: "secondary.main" }}
+                  />
+                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                    لا توجد نتائج
+                  </Typography>
+                  <Typography sx={{ color: "text.secondary" }}>
+                    {hasActiveFilters
+                      ? "لم نعثر على منتجات تطابق بحثك الحالي. جرّب تعديل الفلاتر."
+                      : "لا توجد منتجات لعرضها حالياً."}
+                  </Typography>
+
+                  {hasActiveFilters && (
+                    <Button
+                      variant="outlined"
+                      onClick={() => setSearchParams(new URLSearchParams())}
+                    >
+                      إعادة ضبط الفلاتر
+                    </Button>
                   )}
-                </AnimatePresence>
-              </Stack>
-            </Grid>
+                </StateWrap>
+              ) : (
+                <>
+                  <Grid container spacing={3}>
+                    {data.items.map((product) => (
+                      <Grid size={{ xs: 6, sm: 6, lg: 4 }} key={product._id}>
+                        <ProductCard
+                          _id={product._id}
+                          productName={product.productName}
+                          productCode={product.productCode}
+                          category={
+                            typeof product.category === "string"
+                              ? product.category
+                              : product.category?.name
+                          }
+                          model={product.model}
+                          description={product.description}
+                          originalUrl={(product as any).originalUrl || null}
+                          watermarkedUrl={(product as any).watermarkedUrl || null}
+                          tags={product.tags}
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+
+                  {data.totalPages > 1 && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        mt: 4,
+                      }}
+                    >
+                      <Pagination
+                        count={data.totalPages}
+                        page={page}
+                        onChange={(_, p) =>
+                          handleFilterChange({ page: p.toString() })
+                        }
+                        color="primary"
+                        size="large"
+                      />
+                    </Box>
+                  )}
+                </>
+              )}
+            </Stack>
           </Grid>
-        </Container>
-      </Box>
+        </Grid>
+      </Container>
     </PageTransition>
   );
 }

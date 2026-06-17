@@ -6,64 +6,77 @@ import {
   Stack,
   Link as MuiLink,
   Divider,
-  IconButton,
-  useTheme,
 } from "@mui/material";
+import { WhatsApp, PlaceOutlined } from "@mui/icons-material";
 import { NavLink } from "react-router-dom";
-import WhatsApp from "@mui/icons-material/WhatsApp";
 import { FC, ReactElement } from "react";
 import { getWhatsAppUrl } from "../../utils/whatsapp";
 
-const SiteFooter: FC = (): ReactElement => {
-  const theme = useTheme();
+const quickLinks = [
+  { label: "الرئيسية", to: "/" },
+  { label: "المنتجات", to: "/catalog" },
+  { label: "الفئات", to: "/categories" },
+];
 
+const SiteFooter: FC = (): ReactElement => {
   return (
     <Box
       component="footer"
       sx={{
-        mt: 12,
-        pt: 10,
+        mt: 10,
+        pt: 8,
         pb: 4,
-        background: theme.palette.mode === "dark"
-          ? "linear-gradient(135deg, #050505 0%, #0d1b3d 50%, #15295f 100%)"
-          : "linear-gradient(135deg, #0d1b3d 0%, #15295f 50%, #24458f 100%)",
-        color: "#ffffff",
+        bgcolor: "primary.main",
+        color: "rgba(255,255,255,0.85)",
       }}
     >
       <Container maxWidth="lg">
         <Grid container spacing={6}>
           <Grid size={{ xs: 12, md: 5 }}>
             <Typography
-              variant="h4"
-              fontWeight={900}
-              sx={{ mb: 3, color: "var(--brand-yellow)" }}
+              variant="h5"
+              sx={{
+                fontWeight: 700,
+                mb: 2,
+                color: "#fff",
+                fontFamily: "'El Messiri', sans-serif",
+              }}
             >
-              ALRHOMI
+              المرحومي
             </Typography>
-            <Typography sx={{ color: "rgba(255,255,255,0.75)", lineHeight: 1.8, maxWidth: 400 }}>
-              رائدون في تجهيز أرقى المطاعم والمطابخ الفندقية. نقدم حلولاً متكاملة تدمج بين الجودة العالية والابتكار التقني.
+
+            <Typography
+              sx={{
+                lineHeight: 1.9,
+                maxWidth: 420,
+                color: "rgba(255,255,255,0.8)",
+              }}
+            >
+              أناقة الضيافة العربية في كل تفصيل — أواني وأدوات المطبخ، أطقم القهوة والشاي، صواني
+              التقديم، المباخر، ومستلزمات البيت بجودة عالية وأسعار في المتناول.
             </Typography>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 3 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 3, color: "var(--brand-yellow)" }}>
+          <Grid size={{ xs: 6, md: 3 }}>
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: 700, mb: 2.5, color: "#fff" }}
+            >
               روابط سريعة
             </Typography>
+
             <Stack spacing={1.5}>
-              {[
-                { label: "الرئيسية", path: "/" },
-                { label: "الكتالوج", path: "/catalog" },
-                { label: "الفئات", path: "/categories" },
-              ].map((link) => (
+              {quickLinks.map((link) => (
                 <MuiLink
-                  key={link.path}
+                  key={link.to}
                   component={NavLink}
-                  to={link.path}
+                  to={link.to}
                   sx={{
-                    color: "rgba(255,255,255,0.75)",
+                    color: "rgba(255,255,255,0.78)",
                     textDecoration: "none",
+                    width: "fit-content",
                     transition: "color 0.25s ease",
-                    "&:hover": { color: "var(--brand-yellow)" },
+                    "&:hover": { color: "secondary.main" },
                   }}
                 >
                   {link.label}
@@ -72,53 +85,50 @@ const SiteFooter: FC = (): ReactElement => {
             </Stack>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 3, color: "var(--brand-yellow)" }}>
-              معلومات الاتصال
+          <Grid size={{ xs: 6, md: 4 }}>
+            <Typography
+              variant="subtitle1"
+              sx={{ fontWeight: 700, mb: 2.5, color: "#fff" }}
+            >
+              تواصل معنا
             </Typography>
+
             <Stack spacing={1.5}>
-              <Typography sx={{ color: "rgba(255,255,255,0.75)" }}>
-                جدة، حي الهنداوية - شارع شجرة الزيتون
-              </Typography>
-              <Typography sx={{ color: "rgba(255,255,255,0.75)" }}>
-                الهاتف: 012 647 7825
-              </Typography>
               <Stack direction="row" spacing={1} alignItems="center">
-                <IconButton
-                  href={getWhatsAppUrl()}
-                  target="_blank"
-                  sx={{
-                    bgcolor: "rgba(37,211,102,0.15)",
-                    color: "#25D366",
-                    "&:hover": { bgcolor: "rgba(37,211,102,0.25)" },
-                  }}
-                >
-                  <WhatsApp />
-                </IconButton>
-                <MuiLink
-                  href={getWhatsAppUrl()}
-                  target="_blank"
-                  sx={{
-                    color: "#25D366",
-                    textDecoration: "none",
-                    fontWeight: 600,
-                    "&:hover": { color: "#fff" },
-                  }}
-                >
-                  تواصل عبر واتساب مباشر
-                </MuiLink>
+                <PlaceOutlined sx={{ fontSize: 20, color: "secondary.main" }} />
+                <Typography sx={{ color: "rgba(255,255,255,0.8)" }}>
+                  المملكة العربية السعودية
+                </Typography>
               </Stack>
+
+              <MuiLink
+                href={getWhatsAppUrl()}
+                target="_blank"
+                rel="noopener"
+                sx={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 1,
+                  color: "secondary.main",
+                  textDecoration: "none",
+                  fontWeight: 700,
+                  width: "fit-content",
+                }}
+              >
+                <WhatsApp sx={{ fontSize: 20 }} />
+                الطلب والاستفسار عبر واتساب
+              </MuiLink>
             </Stack>
           </Grid>
         </Grid>
 
-        <Divider sx={{ my: 6, borderColor: "rgba(255,255,255,0.15)" }} />
+        <Divider sx={{ my: 5, borderColor: "rgba(255,255,255,0.15)" }} />
 
         <Typography
           variant="body2"
-          sx={{ textAlign: "center", color: "rgba(255,255,255,0.5)" }}
+          sx={{ textAlign: "center", color: "rgba(255,255,255,0.6)" }}
         >
-          © {new Date().getFullYear()} شركة الرحومي المحدودة. صُمم بشغف للتميز.
+          © {new Date().getFullYear()} المرحومي · جميع الحقوق محفوظة
         </Typography>
       </Container>
     </Box>

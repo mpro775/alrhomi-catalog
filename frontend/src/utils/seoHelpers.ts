@@ -85,7 +85,7 @@ export const generateKeywords = (
  */
 export const optimizeTitle = (
   title: string,
-  siteName: string = "كتالوج الرحومي",
+  siteName: string = "كتالوج المرحومي",
   separator: string = "-"
 ): string => {
   if (!title) return siteName;

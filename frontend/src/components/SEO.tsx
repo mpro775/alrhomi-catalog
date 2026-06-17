@@ -19,14 +19,14 @@ interface SEOProps {
  * يدير meta tags و Open Graph و Twitter Cards بشكل ديناميكي
  */
 const SEO: FC<SEOProps> = ({
-  title = "كتالوج الرحومي - صور منتجات عالية الجودة",
-  description = "استكشف مجموعة واسعة من صور المنتجات عالية الجودة في كتالوج الرحومي. صور احترافية لجميع أنواع المنتجات مع إمكانية التحميل المباشر.",
-  keywords = "كتالوج منتجات, صور منتجات, كتالوج الرحومي, صور احترافية, منتجات يمنية, كتالوج إلكتروني",
+  title = "كتالوج المرحومي - صور منتجات عالية الجودة",
+  description = "استكشف مجموعة واسعة من صور المنتجات عالية الجودة في كتالوج المرحومي. صور احترافية لجميع أنواع المنتجات مع إمكانية التحميل المباشر.",
+  keywords = "كتالوج منتجات, صور منتجات, كتالوج المرحومي, صور احترافية, منتجات يمنية, كتالوج إلكتروني",
   image = "/logo512.png",
   imageWidth = "1200",
   imageHeight = "630",
   type = "website",
-  author = "كتالوج الرحومي",
+  author = "كتالوج المرحومي",
 }): ReactElement => {
   const location = useLocation();
   const baseUrl = window.location.origin;
@@ -52,7 +52,7 @@ const SEO: FC<SEOProps> = ({
       <meta property="og:image:alt" content={title} />
       <meta property="og:locale" content="ar_YE" />
       <meta property="og:locale:alternate" content="en_US" />
-      <meta property="og:site_name" content="كتالوج الرحومي" />
+      <meta property="og:site_name" content="كتالوج المرحومي" />
 
       {/* Twitter Card Meta Tags */}
       <meta name="twitter:card" content="summary_large_image" />

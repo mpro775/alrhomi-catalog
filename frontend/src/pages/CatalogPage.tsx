@@ -372,7 +372,7 @@ export default function CatalogPage() {
                           category={
                             typeof product.category === "string"
                               ? product.category
-                              : product.category?.name
+                              : undefined
                           }
                           model={product.model}
                           description={product.description}
